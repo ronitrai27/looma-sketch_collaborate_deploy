@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Looma - Collaborative Sketch to Code Platform
 
-## Getting Started
+**Looma** is a real-time collaborative whiteboard where teams sketch designs together, convert them to live code with AI, preview instantly, and deploy to production with one click.
 
-First, run the development server:
+## 🚀 Quick Links
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **[📋 Full Project Plan](./PROJECT_PLAN.md)** - Complete 14-day development roadmap
+- **[⚡ Quick Start Guide](./QUICK_START.md)** - Setup checklist and daily tasks
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Collaborative White Canvas** - Real-time multi-user sketching with tldraw + Liveblocks
+2. **AI-Powered Code Generation** - Convert sketches to React/Next.js code with OpenAI
+3. **Live Preview** - Edit code and see changes instantly with WebContainers
+4. **Style Guide Extraction** - Upload images to extract colors and typography with AI
+5. **One-Click Deploy** - Export to GitHub, connect Supabase, deploy to Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Tech Stack
 
-## Learn More
+- **Framework**: Next.js 16 (App Router)
+- **Database**: Convex (real-time backend)
+- **Collaboration**: Liveblocks + tldraw
+- **Auth**: Clerk
+- **AI**: OpenAI GPT-4 Vision
+- **Code Preview**: StackBlitz WebContainers
+- **Deployment**: Vercel
 
-To learn more about Next.js, take a look at the following resources:
+## 📅 14-Day MVP Plan
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See [PROJECT_PLAN.md](./PROJECT_PLAN.md) for the complete breakdown:
+- Days 1-3: Foundation & Canvas
+- Days 4-5: Real-time Collaboration
+- Days 6-8: AI Conversion & Live Preview
+- Days 9-10: StyleGuide Feature
+- Days 11-13: Export & Deploy
+- Day 14: Polish & QA
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🏃 Getting Started
 
-## Deploy on Vercel
+1. **Read the [Quick Start Guide](./QUICK_START.md)** for setup instructions
+2. **Install dependencies**: `pnpm install`
+3. **Setup environment variables** (see QUICK_START.md)
+4. **Initialize Convex**: `npx convex dev`
+5. **Start development**: `pnpm dev`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📚 Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Project Plan](./PROJECT_PLAN.md) - Detailed feature breakdown and tech decisions
+- [Quick Start](./QUICK_START.md) - Daily checklist and setup guide
+- [Tech Decisions](./TECH_DECISIONS.md) - Why we chose Liveblocks, tldraw, Convex, etc.
+
+## 🎯 Current Status
+
+🚧 **In Development** - Following 14-day MVP plan
+
+---
+
+Built with ❤️ using Next.js 16, Convex, and Liveblocks

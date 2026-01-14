@@ -1,0 +1,91 @@
+import { Button } from "@/components/ui/button";
+import { LucideGithub } from "lucide-react";
+import Image from "next/image";
+import React from "react";
+
+const AuthPage = () => {
+  return (
+    <div className="w-full h-screen flex gap-10 p-8">
+      {/* left side image */}
+      <div className="hidden md:block relative overflow-hidden w-[60%] border">
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `
+          radial-gradient(circle at 50% 100%, rgba(70, 85, 110, 0.5) 0%, transparent 60%),
+          radial-gradient(circle at 50% 100%, rgba(99, 102, 241, 0.4) 0%, transparent 70%),
+          radial-gradient(circle at 50% 100%, rgba(181, 184, 208, 0.3) 0%, transparent 80%)
+        `,
+          }}
+        />
+        <div className="absolute top-4 left-4 flex items-center gap-2">
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={40}
+            height={40}
+            className=""
+          />
+          <h1 className="font-pop font-bold text-2xl">Looma</h1>
+        </div>
+
+        <div className="absolute left-4 bottom-20">
+          <h1 className="text-6xl tracking-tight font-serif font-bold text-gray-300">
+            Sketch. Collaborate. Deploy.
+          </h1>
+          <p className="text-primary text-lg mt-3">
+            Turn ideas into live products — together, in real time.
+          </p>
+        </div>
+      </div>
+      {/* right side form */}
+      <div className="flex flex-col flex-1 justify-center items-center h-full">
+        <div className="flex flex-col h-auto space-y-4">
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={40}
+            height={40}
+            className="mx-auto"
+          />
+          <h1 className="text-3xl font-medium text-center">
+            Welcome to <span className="font-pop font-bold">Looma</span>
+          </h1>
+          <h3 className="text-muted-foreground text-lg text-center">
+            Continue using Looma with others using any of the below methods
+          </h3>
+
+          <div className="flex items-center px-12">
+            <hr className="w-full border" />
+            <p className="text-muted-foreground mx-3 text-sm">continue</p>
+            <hr className="w-full border" />
+          </div>
+
+          <div className="flex  items-center justify-center gap-6 my-6">
+            <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium">
+              <Image
+                src="/search.png"
+                alt="Google"
+                width={20}
+                height={20}
+                className="mr-3"
+              />{" "}
+              Continue with Google
+            </Button>
+            <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium">
+              {" "}
+              <LucideGithub className="mr-3 size-5" /> Continue with GitHub
+            </Button>
+          </div>
+        </div>
+        <p className="text-center text-muted-foreground text-xs mt-20">
+          By continuing, you agree to our{" "}
+          <span className="font-semibold">Terms of Service</span> and{" "}
+          <span className="font-semibold">Privacy Policy</span>.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default AuthPage;
