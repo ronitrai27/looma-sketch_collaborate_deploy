@@ -10,7 +10,13 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.59.3",
+    "@clerk/nextjs": "^6.36.7",
+    "@clerk/themes": "^2.4.47",
     "@hookform/resolvers": "^5.2.2",
+    "@liveblocks/client": "^3.13.0",
+    "@liveblocks/react": "^3.13.0",
+    "@liveblocks/yjs": "^3.13.0",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
@@ -40,8 +46,10 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "convex": "^1.31.4",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
+    "framer-motion": "^12.26.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
@@ -56,6 +64,7 @@
     "tailwind-merge": "^3.4.0",
     "tldraw": "^4.2.3",
     "vaul": "^1.1.2",
+    "yjs": "^13.6.29",
     "zod": "^4.3.5"
   },
   "devDependencies": {

@@ -1,13 +1,27 @@
+"use client";
 import { Button } from "@/components/ui/button";
+import { SignInButton } from "@clerk/nextjs";
+import { useConvexAuth } from "convex/react";
 import { LucideGithub } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const AuthPage = () => {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
+
+  if (isAuthenticated) {
+    toast.success("Session restored successfully!");
+    router.push("/auth/callback");
+    return;
+  }
+
   return (
-    <div className="w-full h-screen flex gap-10 p-8">
+    <div className="w-full h-screen flex gap-10 p-8 bg-black">
       {/* left side image */}
-      <div className="hidden md:block relative overflow-hidden w-[60%] border">
+      <div className="hidden md:block relative overflow-hidden w-[60%] border  border-gray-200/10">
         <div
           className="absolute inset-0 z-0"
           style={{
@@ -26,14 +40,14 @@ const AuthPage = () => {
             height={40}
             className=""
           />
-          <h1 className="font-pop font-bold text-2xl">Looma</h1>
+          <h1 className="font-pop font-bold text-2xl text-white">Looma</h1>
         </div>
 
         <div className="absolute left-4 bottom-20">
           <h1 className="text-6xl tracking-tight font-serif font-bold text-gray-300">
             Sketch. Collaborate. Deploy.
           </h1>
-          <p className="text-primary text-lg mt-3">
+          <p className="text-white text-lg mt-3">
             Turn ideas into live products — together, in real time.
           </p>
         </div>
@@ -48,37 +62,48 @@ const AuthPage = () => {
             height={40}
             className="mx-auto"
           />
-          <h1 className="text-3xl font-medium text-center">
+          <h1 className="text-3xl font-medium text-center text-white">
             Welcome to <span className="font-pop font-bold">Looma</span>
           </h1>
-          <h3 className="text-muted-foreground text-lg text-center">
+          <h3 className="text-gray-200/70 text-lg text-center">
             Continue using Looma with others using any of the below methods
           </h3>
 
           <div className="flex items-center px-12">
-            <hr className="w-full border" />
-            <p className="text-muted-foreground mx-3 text-sm">continue</p>
-            <hr className="w-full border" />
+            <hr className="w-full border border-gray-200/20" />
+            <p className="text-gray-200/70 mx-3 text-sm">continue</p>
+            <hr className="w-full border border-gray-200/20" />
           </div>
 
           <div className="flex  items-center justify-center gap-6 my-6">
-            <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium">
-              <Image
-                src="/search.png"
-                alt="Google"
-                width={20}
-                height={20}
-                className="mr-3"
-              />{" "}
-              Continue with Google
-            </Button>
-            <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium">
-              {" "}
-              <LucideGithub className="mr-3 size-5" /> Continue with GitHub
-            </Button>
+            <SignInButton>
+              <Button
+                size="sm"
+                className="px-4! w-fit h-9 text-sm font-medium cursor-pointer bg-white text-black hover:bg-white"
+              >
+                <Image
+                  src="/search.png"
+                  alt="Google"
+                  width={20}
+                  height={20}
+                  className="mr-3"
+                />{" "}
+                Continue with Google
+              </Button>
+            </SignInButton>
+
+            <SignInButton>
+              <Button
+                size="sm"
+                className="px-4! w-fit h-9 text-sm font-medium cursor-pointer bg-white text-black hover:bg-white"
+              >
+                {" "}
+                <LucideGithub className="mr-3 size-5" /> Continue with GitHub
+              </Button>
+            </SignInButton>
           </div>
         </div>
-        <p className="text-center text-muted-foreground text-xs mt-20">
+        <p className="text-center text-gray-200/70 text-xs mt-20">
           By continuing, you agree to our{" "}
           <span className="font-semibold">Terms of Service</span> and{" "}
           <span className="font-semibold">Privacy Policy</span>.
