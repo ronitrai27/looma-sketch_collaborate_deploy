@@ -1,8 +1,9 @@
+import DashboardPage from '@/modules/dashboard/DashboardPage'
 import React from 'react'
 
 const Dashboard = () => {
   return (
-    <div>welcome bro </div>
+    <div><DashboardPage/></div>
   )
 }
 

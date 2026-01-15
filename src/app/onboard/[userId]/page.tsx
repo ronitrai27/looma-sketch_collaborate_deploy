@@ -31,6 +31,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AVAILABLE_TAGS } from "@/lib/Static-items";
 import { Id } from "../../../../convex/_generated/dataModel";
 import Image from "next/image";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const OnboardPage = () => {
   const { userId } = useParams();
@@ -51,6 +60,8 @@ const OnboardPage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  //   Command dialog
+  const [open, setOpen] = useState(false);
 
   // Step 3 State
   const [inviteLink, setInviteLink] = useState("");
@@ -231,7 +242,9 @@ const OnboardPage = () => {
                     <div className="p-3 rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
                       <theme.icon className="w-6 h-6 group-hover:text-primary transition-colors" />
                     </div>
-                    <span className="font-medium text-sm text-muted-foreground">{theme.label}</span>
+                    <span className="font-medium text-sm text-muted-foreground">
+                      {theme.label}
+                    </span>
                     {selectedTheme === theme.id && (
                       <motion.div
                         layoutId="check"
@@ -252,11 +265,11 @@ const OnboardPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-card border rounded-2xl p-8 shadow-sm space-y-8"
+              className="bg-card border rounded-2xl p-4 shadow-sm space-y-8"
             >
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-lg">
+                  <Label htmlFor="name" className="text-sm">
                     Project Name
                   </Label>
                   <Input
@@ -264,15 +277,15 @@ const OnboardPage = () => {
                     placeholder="My Awesome Project"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
-                    className="text-lg h-12"
+                    className="text-xs h-9"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="text-lg">Select Tags</Label>
+                    <Label className="text-sm">Select Tags</Label>
                     <span
-                      className={`text-sm ${
+                      className={`text-xs ${
                         selectedTags.length < 2
                           ? "text-destructive"
                           : "text-muted-foreground"
@@ -281,28 +294,64 @@ const OnboardPage = () => {
                       {selectedTags.length}/5 (Min 2)
                     </span>
                   </div>
-                  <ScrollArea className="h-[200px] rounded-md border p-4">
-                    <div className="flex flex-wrap gap-2">
-                      {AVAILABLE_TAGS.map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant={
-                            selectedTags.includes(tag) ? "default" : "outline"
-                          }
-                          className="cursor-pointer text-sm py-1.5 px-3 hover:translate-y-[-2px] transition-transform"
-                          onClick={() => toggleTag(tag)}
-                        >
+
+                  {/* Input trigger */}
+                  <div
+                    onClick={() => setOpen(true)}
+                    className="flex min-h-[40px] cursor-pointer flex-wrap gap-2 rounded-md border px-3 py-2 text-sm"
+                  >
+                    {selectedTags.length > 0 ? (
+                      selectedTags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
                           {tag}
                         </Badge>
-                      ))}
-                    </div>
-                  </ScrollArea>
+                      ))
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Click to select tags...
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Command Dialog */}
+                  <CommandDialog open={open} onOpenChange={setOpen}>
+                    <Command>
+                      <CommandInput placeholder="Search tags..." />
+
+                      <CommandList>
+                        <CommandEmpty>No tags found.</CommandEmpty>
+
+                        <CommandGroup heading="Available Tags">
+                          {AVAILABLE_TAGS.map((tag) => {
+                            const selected = selectedTags.includes(tag);
+
+                            return (
+                              <CommandItem
+                                key={tag}
+                                onSelect={() => toggleTag(tag)}
+                                className="flex items-center justify-between"
+                              >
+                                <span>{tag}</span>
+                                {selected && (
+                                  <Badge variant="default" className="ml-2">
+                                    Selected
+                                  </Badge>
+                                )}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </CommandDialog>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                  <div className="space-y-0.5">
+                {/* --- */}
+
+                <div className="flex items-center justify-between p-2 rounded-lg border bg-muted/30">
+                  <div className="space-y-1">
                     <Label className="text-base">Visibility</Label>
-                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <div className="text-xs text-muted-foreground flex items-center gap-2">
                       {isPublic ? (
                         <Globe className="w-4 h-4" />
                       ) : (
@@ -327,7 +376,7 @@ const OnboardPage = () => {
                   size="sm"
                   onClick={handleCreateProject}
                   disabled={isCreating}
-                  className="w-full md:w-auto text-xs px-6! gap-2"
+                  className="w-full md:w-auto text-xs px-6! gap-2 cursor-pointer"
                 >
                   {isCreating ? (
                     "Creating..."
@@ -347,11 +396,11 @@ const OnboardPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-card border rounded-2xl p-8 shadow-sm text-center"
+              className="bg-card border rounded-2xl p-5 shadow-sm text-center"
             >
               <div className="mb-8 flex justify-center">
-                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center text-green-500">
-                  <Sparkles className="w-10 h-10" />
+                <div className="w-14 h-14 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500">
+                  <Sparkles className="w-6 h-6" />
                 </div>
               </div>
 
@@ -376,9 +425,9 @@ const OnboardPage = () => {
               </div>
 
               <Button
-                size="lg"
+                size="sm"
                 onClick={handleComplete}
-                className="w-full md:w-auto text-lg px-12 gap-2 bg-green-600 hover:bg-green-700 text-white"
+                className="px-6! cursor-pointer"
               >
                 Let's Start <Rocket className="w-5 h-5" />
               </Button>

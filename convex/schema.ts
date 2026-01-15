@@ -31,5 +31,5 @@ export default defineSchema({
     isPublic: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
-  })
+  }).index("by_owner", ["ownerId"]),
 });

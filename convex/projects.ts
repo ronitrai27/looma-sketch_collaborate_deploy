@@ -1,6 +1,10 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+
+// =======================
+// Create Project
+// =======================
 export const createProject = mutation({
   args: {
     name: v.string(),
@@ -43,5 +47,34 @@ export const createProject = mutation({
     });
 
     return { projectId, inviteLink };
+  },
+});
+
+
+// =====================
+// GET ALL PROJECTS FOR LOGGED IN USER
+// =====================
+export const getProjects = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthenticated");
+    }
+
+    const user = await ctx.db.query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return ctx.db.query("projects")
+      .withIndex("by_owner", (q) =>
+        q.eq("ownerId", user._id)
+      ).collect();
   },
 });
