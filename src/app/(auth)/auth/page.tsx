@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SignInButton } from "@clerk/nextjs";
 import { LucideGithub } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -62,20 +63,25 @@ const AuthPage = () => {
           </div>
 
           <div className="flex  items-center justify-center gap-6 my-6">
-            <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium">
-              <Image
-                src="/search.png"
-                alt="Google"
-                width={20}
-                height={20}
-                className="mr-3"
-              />{" "}
-              Continue with Google
-            </Button>
-            <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium">
-              {" "}
-              <LucideGithub className="mr-3 size-5" /> Continue with GitHub
-            </Button>
+            <SignInButton>
+              <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium cursor-pointer">
+                <Image
+                  src="/search.png"
+                  alt="Google"
+                  width={20}
+                  height={20}
+                  className="mr-3"
+                />{" "}
+                Continue with Google
+              </Button>
+            </SignInButton>
+
+            <SignInButton>
+              <Button size="sm" className="px-4! w-fit h-9 text-sm font-medium cursor-pointer">
+                {" "}
+                <LucideGithub className="mr-3 size-5" /> Continue with GitHub
+              </Button>
+            </SignInButton>
           </div>
         </div>
         <p className="text-center text-muted-foreground text-xs mt-20">
