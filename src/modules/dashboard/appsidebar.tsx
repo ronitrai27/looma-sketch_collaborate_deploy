@@ -23,10 +23,17 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronsUpDown, FolderCode, Github, User } from "lucide-react";
+import {
+  ChevronsUpDown,
+  FolderCode,
+  Github,
+  LucideApple,
+  User,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { SignOutButton } from "@clerk/clerk-react";
 
 export const AppSidebar = () => {
   const { theme, setTheme } = useTheme();
@@ -36,6 +43,8 @@ export const AppSidebar = () => {
   const user: Doc<"users"> | undefined | null = useQuery(
     api.users.getCurrentUser
   );
+
+  if (user === null) return null;
 
   const projects = useQuery(api.projects.getProjects);
 
@@ -59,7 +68,7 @@ export const AppSidebar = () => {
             className="cursor-pointer"
           />
           <h1 className="font-bold font-pop text-2xl group-data-[collapsible=icon]:hidden">
-           Looma
+            Looma
           </h1>
           {/* DROPDOWN ICON TO CHOOSE AMON USER CREATED PROJECTS  */}
           <Popover>
@@ -132,6 +141,35 @@ export const AppSidebar = () => {
           </div>
         )}
       </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarMenuButton
+          asChild
+          data-active={isActive("/dashboard/projects")}
+          className="group relative overflow-hidden"
+        >
+          <Link
+            href="/dashboard/projects"
+            className="relative z-10 flex items-center gap-3 px-3 py-2 data-[active=true]:text-white text-muted-foreground"
+          >
+            <LucideApple className="h-5 w-5" />
+            <span className="text-base">Projects</span>
+
+            {/* Gradient Active Indicator */}
+            <span
+              className="
+        pointer-events-none absolute inset-0 -z-10
+        opacity-0 transition-opacity
+        group-data-[active=true]:opacity-100
+        bg-linear-to-l from-blue-600/50 via-transparent  to-transparent
+      "
+            />
+          </Link>
+        </SidebarMenuButton>
+        <SignOutButton redirectUrl="/auth">
+          <Button variant="outline">Sign Out</Button>
+        </SignOutButton>
+      </SidebarContent>
     </Sidebar>
   );
 };

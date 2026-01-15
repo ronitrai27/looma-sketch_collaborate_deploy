@@ -27,9 +27,11 @@ export default defineSchema({
     projectTags: v.optional(v.array(v.string())), // min 2 max 5
     ownerId: v.id("users"),
     ownerEmail: v.string(),
+    inviteCode: v.optional(v.string()), 
     inviteLink: v.optional(v.string()), // auto creates random invite link unique !
     isPublic: v.boolean(),
+    projectMembers: v.optional(v.array(v.id("users"))), 
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_owner", ["ownerId"]),
+  }).index("by_owner", ["ownerId"]).index("by_invite_code", ["inviteCode"]),
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useStoreUser } from "@/hooks/user-store";
-import { Authenticated, useQuery } from "convex/react";
+import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "../../../../convex/_generated/api";
@@ -13,6 +13,7 @@ import {
 import { AppSidebar } from "@/modules/dashboard/appsidebar";
 import { DashboardBreadcrumbs } from "@/modules/dashboard/BreadCrumbs";
 import { Separator } from "@/components/ui/separator";
+import { RedirectToSignIn } from "@clerk/clerk-react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isLoading: isStoreLoading } = useStoreUser();
@@ -28,22 +29,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [isStoreLoading, user, router]);
 
   return (
-    <div>
-      <Authenticated>
-        <SidebarProvider defaultOpen={true}>
-          <AppSidebar />
-          <SidebarInset>
-            <header className="flex justify-between h-16 py-1 shrink-0 items-center border-b px-4">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger className="-ml-1 cursor-pointer hover:scale-105 transition-all duration-200" />
-                {/* <Separator orientation="vertical" className="mx-4 h-10" /> */}
-                <DashboardBreadcrumbs />
-              </div>
-            </header>
-            <main className="flex-1 overflow-auto">{children}</main>
-          </SidebarInset>
-        </SidebarProvider>
-      </Authenticated>
-    </div>
+    <>
+      <Unauthenticated>
+        <RedirectToSignIn />
+      </Unauthenticated>
+
+      <div>
+        <Authenticated>
+          <SidebarProvider defaultOpen={true}>
+            <AppSidebar />
+            <SidebarInset>
+              <header className="flex justify-between h-16 py-1 shrink-0 items-center border-b px-4">
+                <div className="flex items-center gap-4">
+                  <SidebarTrigger className="-ml-1 cursor-pointer hover:scale-105 transition-all duration-200" />
+                  {/* <Separator orientation="vertical" className="mx-4 h-10" /> */}
+                  <DashboardBreadcrumbs />
+                </div>
+              </header>
+              <main className="flex-1 overflow-auto">{children}</main>
+            </SidebarInset>
+          </SidebarProvider>
+        </Authenticated>
+      </div>
+    </>
   );
 }

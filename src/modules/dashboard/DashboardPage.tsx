@@ -7,6 +7,8 @@ import {
   Check,
   ChevronsUpDown,
   LucideActivity,
+  LucideMoveRight,
+  LucidePaintBucket,
   LucidePlus,
   LucideSquarePen,
 } from "lucide-react";
@@ -112,18 +114,29 @@ const DashboardPage = () => {
   return (
     <div className="w-full h-full p-6">
       <h1 className="text-3xl font-semibold font-pop mb-10">
-        Welcome to Looma {user?.name || "User"}
+        Welcome to Looma, {user?.name || "User"}
       </h1>
 
-      <div className="my-5 px-2 space-y-1">
-        <h2 className="text-xl font-semibold font-pop">
-          My Workspaces <LucideActivity className="h-4 w-4 inline ml-1" />
-        </h2>
-        <p className="text-lg text-muted-foreground">
-          Manage your Projects with your team
-        </p>
+      {/* -----------PROJECTS SECTION ---------- */}
+      <div className="my-5 px-4 space-y-1">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold font-pop">
+              My Workspaces <LucideActivity className="h-4 w-4 inline ml-1" />
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Manage your Projects with your team
+            </p>
+          </div>
 
-        <div className="grid grid-cols-4 gap-5 mt-5">
+          <div>
+            <Button size="sm" variant="outline">
+              View All Projects{" "}
+              <LucideMoveRight className="h-4 w-4 inline ml-1" />
+            </Button>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 min-[1460px]:grid-cols-5 gap-5 mt-5">
           {/* Create New Project Dialog */}
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
@@ -260,7 +273,7 @@ const DashboardPage = () => {
               </Card>
             ))
           ) : projects?.length ? (
-            projects.map((project, index) => {
+            projects.slice(0, 3).map((project, index) => {
               const gradient =
                 PROJECT_GRADIENTS[index % PROJECT_GRADIENTS.length];
 
@@ -270,7 +283,7 @@ const DashboardPage = () => {
                   href={`/dashboard/projects/${project._id}`}
                 >
                   <Card
-                    className={`h-[180px] w-[240px] shrink-0 bg-linear-to-br ${gradient} 
+                    className={`h-[180px] w-[250px] shrink-0 bg-linear-to-br ${gradient} 
             hover:scale-[1.02] transition-transform cursor-pointer p-2! overflow-hidden`}
                   >
                     <CardHeader>
@@ -298,6 +311,31 @@ const DashboardPage = () => {
               No projects found. Create one to get started!
             </p>
           )}
+        </div>
+      </div>
+
+      {/* -------------STYLE GUIDE SECTION--------------- */}
+      <div className="px-4 space-y-1 mt-10">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold font-pop">
+              Style Guide <LucidePaintBucket className="h-5 w-5 inline ml-1" />
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Customize your workspace with your own colors, fonts.
+            </p>
+          </div>
+
+          <div>
+            <Button size="sm" variant="outline">
+              View All Styles{" "}
+              <LucideMoveRight className="h-4 w-4 inline ml-1" />
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          
         </div>
       </div>
     </div>

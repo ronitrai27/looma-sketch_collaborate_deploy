@@ -14,7 +14,7 @@ export const createNewUser = mutation({
       throw new Error("Called storeUser without authentication present");
     }
 
-    console.log("identity from clerk ", identity);
+    // console.log("identity from clerk ", identity);
     // Find user by tokenIdentifier
     const user = await ctx.db
       .query("users")

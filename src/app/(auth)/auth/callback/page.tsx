@@ -16,7 +16,7 @@ const AuthCallback = () => {
     if (isStoreLoading) return;
 
     if (!isAuthenticated) {
-      router.push("/");
+      router.push("/auth");
       return;
     }
     if (user === undefined) return;
@@ -57,7 +57,7 @@ const AuthCallback = () => {
             />
           ))}
         </div>
-        <p className="text-muted-foreground text-lg absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <p className="text-gray-300/80 text-lg absolute top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           Establishing connection with{" "}
           <span className="text-white font-pop">Looma</span>
         </p>
