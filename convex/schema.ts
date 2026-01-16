@@ -34,4 +34,14 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_owner", ["ownerId"]).index("by_invite_code", ["inviteCode"]),
+
+  // Style guide table
+  styleGuides: defineTable({
+    name: v.string(),
+    userId: v.id("users"),
+    colors: v.optional(v.any()), // just to make sure it properly stores without Error !
+    fonts: v.optional(v.any()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"])
 });

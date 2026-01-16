@@ -186,7 +186,7 @@ export const AppSidebar = () => {
         >
           <Link
             href="/dashboard/projects"
-            className="relative z-10 flex items-center gap-3 px-3 py-2 data-[active=true]:text-black text-muted-foreground"
+            className="relative z-10 flex items-center gap-3 px-3 py-4.5! data-[active=true]:text-black text-muted-foreground"
           >
             <AppWindow className="h-5 w-5" />
             <span className="text-base">Projects</span>
@@ -210,7 +210,7 @@ export const AppSidebar = () => {
         >
           <Link
             href="/dashboard/style-guide"
-            className="relative z-10 flex items-center gap-3 px-3 py-2 data-[active=true]:text-black text-muted-foreground"
+            className="relative z-10 flex items-center gap-3 px-3 py-4.5! data-[active=true]:text-black text-muted-foreground"
           >
             <LucidePaintBucket className="h-5 w-5" />
             <span className="text-base">Style Guide</span>
@@ -234,7 +234,7 @@ export const AppSidebar = () => {
         >
           <Link
             href="/dashboard/discover"
-            className="relative z-10 flex items-center gap-3 px-3 py-2 data-[active=true]:text-black text-muted-foreground"
+            className="relative z-10 flex items-center gap-3 px-3 py-4.5! data-[active=true]:text-black text-muted-foreground"
           >
             <LucideRocket className="h-5 w-5" />
             <span className="text-base">Discover</span>
@@ -314,10 +314,10 @@ export const AppSidebar = () => {
 
               {/* TEAM PROJECTS */}
               <TabsContent value="team" className="m-0 p-2">
-                <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+                <div className="flex h-full flex-col gap-2 text-center">
                   {joinedProjects && joinedProjects.length === 0 ? (
                     <>
-                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <Users className="h-5 w-5 text-muted-foreground mx-auto" />
                       <p className="text-xs text-muted-foreground">
                         No team projects
                       </p>
@@ -330,7 +330,7 @@ export const AppSidebar = () => {
                     <div className="flex flex-col gap-2 ">
                       {joinedProjects?.map((joined) => (
                         <div key={joined._id}>
-                          <div className="flex items-center text-xs tracking-tight hover:bg-accent hover:p-1 rounded-md transition-all duration-150">
+                          <div className="flex text-xs tracking-tight hover:p-1 hover:bg-accent/30 duration-200">
                             <Link
                               className="flex items-center gap-2 truncate w-full max-w-[160px]"
                               href={`/dashboard/projects/${joined._id}`}

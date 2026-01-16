@@ -121,7 +121,7 @@ const AllProjects = () => {
       </div>
 
       {/* Owned Projects Section */}
-      <section className="space-y-6">
+      <section className="space-y-4">
         <div className="flex items-center justify-between pb-2">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <LucideLayoutGrid className="h-5 w-5 " />
@@ -135,7 +135,7 @@ const AllProjects = () => {
         {ownedProjects === undefined ? (
           <LoadingSkeleton />
         ) : filteredOwned.length > 0 ? (
-          <div className="grid grid-cols-1  md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1  md:grid-cols-4 gap-6">
             {filteredOwned.map((project, index) => {
               const gradient =
                 PROJECT_GRADIENTS[index % PROJECT_GRADIENTS.length];
@@ -165,9 +165,9 @@ const AllProjects = () => {
 
       {/* Joined Projects Section */}
       <section className="space-y-6">
-        <div className="flex items-center justify-between border-b pb-2">
-          <h2 className="text-2xl font-semibold flex items-center gap-2">
-            <LucideUsers className="h-5 w-5 text-green-500" />
+        <div className="flex items-center justify-between ">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <LucideUsers className="h-5 w-5 " />
             Team Member Projects
             <span className="text-sm font-normal text-muted-foreground ml-2">
               ({filteredJoined.length})
@@ -178,7 +178,7 @@ const AllProjects = () => {
         {joinedProjects === undefined ? (
           <LoadingSkeleton />
         ) : filteredJoined.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {filteredJoined.map((project, index) => {
               const gradient =
                 PROJECT_GRADIENTS[(index + 4) % PROJECT_GRADIENTS.length];
@@ -222,27 +222,25 @@ const ProjectCard = ({ project, gradient, isMember }: ProjectCardProps) => {
     <Link href={`/dashboard/projects/${project._id}`}>
       <Card
         className={cn(
-          "group h-[180px] relative overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-xl border-none cursor-pointer",
+          "group h-[180px] relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl border-none cursor-pointer",
           `bg-linear-to-br ${gradient}`
         )}
       >
         <CardHeader className="relative z-10">
           <div className="flex justify-between items-start">
-            <h3 className="text-lg font-semibold truncate capitalize ">
+            <h3 className="text-lg font-semibold truncate capitalize -mt-3 ">
               {project.projectName}
             </h3>
-            {isMember && (
+            {/* {isMember && (
               <div className="bg-white/40 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
                 Team
               </div>
-            )}
+            )} */}
           </div>
         </CardHeader>
 
-        <CardContent className="h-20 flex items-center justify-center">
-          {/* Abstract decorative element */}
-          <div className="w-24 h-24 bg-white/20 blur-2xl rounded-full group-hover:scale-150 transition-transform duration-500" />
-          <LucideLayoutGrid className="absolute opacity-15 text-foreground h-20 w-20 group-hover:scale-110 transition-transform -mt-10" />
+        <CardContent className="-mt-5">
+          <div className="w-24 h-24 bg-muted/30 rounded-full mx-auto "></div>
         </CardContent>
 
         <CardFooter className="absolute bottom-0 left-0 right-0 p-3! bg-black/5 backdrop-blur-xs border-t border-white/10 flex justify-between items-center transition-colors group-hover:bg-black/10">
