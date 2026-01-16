@@ -7,15 +7,47 @@ import {
 import { useParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import Canvas from "./Canvas";
+import { useUser } from "@clerk/nextjs";
 
 const ProjectCanvas = () => {
-    const params = useParams();
-    const projectId = params.id as string;
+  const { user, isLoaded } = useUser();
+  const params = useParams();
+  const projectId = params.id as string;
+
+  if (!isLoaded) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        Please sign in
+      </div>
+    );
+  }
 
   return (
-    <LiveblocksProvider publicApiKey={process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY!}>
-      <RoomProvider id={projectId} initialPresence={{ cursor: null }}>
-        <ClientSideSuspense fallback={<div className="h-full w-full flex items-center justify-center"><Spinner /></div>}>
+    <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
+      <RoomProvider
+        id={projectId}
+        initialPresence={{
+          cursor: {
+            x: 0,
+            y: 0,
+          },
+        }}
+      >
+        <ClientSideSuspense
+          fallback={
+            <div className="h-full w-full flex items-center justify-center">
+              <Spinner />
+            </div>
+          }
+        >
           <Canvas />
         </ClientSideSuspense>
       </RoomProvider>

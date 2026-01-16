@@ -15,6 +15,7 @@
     "@clerk/themes": "^2.4.47",
     "@hookform/resolvers": "^5.2.2",
     "@liveblocks/client": "^3.13.0",
+    "@liveblocks/node": "^3.13.0",
     "@liveblocks/react": "^3.13.0",
     "@liveblocks/yjs": "^3.13.0",
     "@radix-ui/react-accordion": "^1.2.12",
