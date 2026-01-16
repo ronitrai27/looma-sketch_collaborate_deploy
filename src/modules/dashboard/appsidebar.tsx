@@ -153,7 +153,7 @@ export const AppSidebar = () => {
         )}
       </SidebarHeader>
 
-      <SidebarContent className="py-5 px-1 space-y-2">
+      <SidebarContent className="py-5 px-1 space-y-0">
         {/* Dashboard */}
         <SidebarMenuButton
           asChild
@@ -162,7 +162,7 @@ export const AppSidebar = () => {
         >
           <Link
             href="/dashboard"
-            className="relative z-10 flex items-center gap-3 px-3 py-2 data-[active=true]:text-black text-muted-foreground"
+            className="relative z-10 flex items-center gap-3 px-3 py-4.5! data-[active=true]:text-black text-muted-foreground"
           >
             <LucideLayoutDashboard className="h-5 w-5" />
             <span className="text-base">Dashboard</span>

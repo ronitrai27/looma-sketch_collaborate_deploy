@@ -16,8 +16,11 @@ const ProjectCanvas = () => {
 
   if (!isLoaded) {
     return (
-      <div className="h-full w-full flex items-center justify-center">
-        <Spinner />
+      <div className="h-full w-full flex flex-col items-center justify-center">
+        <Spinner className="size-10" />
+        <p className="text-sm text-muted-foreground mt-2">
+          Loading Amazing Experience With Leemo...
+        </p>
       </div>
     );
   }
@@ -43,8 +46,11 @@ const ProjectCanvas = () => {
       >
         <ClientSideSuspense
           fallback={
-            <div className="h-full w-full flex items-center justify-center">
-              <Spinner />
+            <div className="h-full w-full flex flex-col items-center justify-center">
+              <Spinner className="size-10" />
+              <p className="text-sm text-muted-foreground mt-2">
+                Loading Amazing Experience With Leemo...
+              </p>
             </div>
           }
         >

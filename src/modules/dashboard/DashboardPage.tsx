@@ -284,7 +284,7 @@ const DashboardPage = () => {
                 >
                   <Card
                     className={`h-[180px] w-[250px] shrink-0 bg-linear-to-br ${gradient} 
-            hover:scale-[1.02] transition-transform cursor-pointer p-2! overflow-hidden`}
+            hover:scale-[1.02] transition-transform cursor-pointer p-2! overflow-hidden relative`}
                   >
                     <CardHeader>
                       <h3 className="text-base font-semibold truncate capitalize text-center ">
@@ -294,13 +294,19 @@ const DashboardPage = () => {
                     <CardContent className="-mt-4 relative">
                       <div className="w-22 h-22 bg-white/30 blur-in-3xl rounded-full mx-auto absolute left-1/2  -translate-x-1/2"></div>
                     </CardContent>
-                    <CardFooter className="mt-auto p-0! mx-auto">
-                      <p className="flex items-center gap-1 text-xs text-muted-foreground tracking-tight">
-                        <LucideSquarePen className="h-4 w-4" /> Updated:{"  "}
+                    <CardFooter className="absolute bottom-0 left-0 right-0 p-3! bg-black/5 backdrop-blur-xs border-t border-white/10 flex justify-between items-center transition-colors group-hover:bg-black/10">
+                      <p className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/60">
+                        <LucideSquarePen className="h-3.5 w-3.5" />
                         {formatDistanceToNow(new Date(project.updatedAt), {
                           addSuffix: true,
                         })}
                       </p>
+                      <div className="flex items-center -space-x-2">
+                        {/* Mock avatar stack or similar could go here */}
+                        <div className="w-6 h-6 rounded-full bg-white/50 border border-white/20 flex items-center justify-center text-[10px] font-bold">
+                          {project.projectMembers?.length || 0}
+                        </div>
+                      </div>
                     </CardFooter>
                   </Card>
                 </Link>
@@ -334,9 +340,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        <div>
-          
-        </div>
+        <div></div>
       </div>
     </div>
   );

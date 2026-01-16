@@ -17,21 +17,18 @@ export function CollaboratorAvatars() {
   const activeUsers = allUsers.filter((u) => u.info);
 
   return (
-    <div className="absolute top-2 right-2 flex -space-x-2 overflow-hidden pointer-events-none z-50 p-2">
+    <div className="absolute top-2 scale-75 left-1/2 flex -space-x-2 overflow-hidden pointer-events-none z-50 ">
       {activeUsers.map((u) => {
         const userInfo = u.info as { name: string; avatar: string; color: string };
         return (
-          <div key={u.connectionId} className="relative group">
-            <Avatar className="inline-block h-10 w-10 rounded-full ring-2 ring-white bg-white">
+          <div key={u.connectionId} className="relative group bg-accent min-w-[200px] px-3 py-1 rounded-full">
+            <p className="text-xs text-muted-foreground text-center ">Active on Board </p>
+            <Avatar className="inline-block h-9 w-9 rounded-full ring-2 ring-white bg-white">
               <AvatarImage src={userInfo.avatar} alt={userInfo.name} />
               <AvatarFallback style={{ backgroundColor: userInfo.color || '#ccc' }}>
                 {userInfo.name?.[0]?.toUpperCase() || "?"}
               </AvatarFallback>
             </Avatar>
-             {/* Tooltip for name */}
-             <div className="absolute top-full right-0 mt-1 hidden group-hover:flex bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                {userInfo.name}
-             </div>
           </div>
         );
       })}
