@@ -14,7 +14,6 @@ export const createNewUser = mutation({
       throw new Error("Called storeUser without authentication present");
     }
 
-    // console.log("identity from clerk ", identity);
     // Find user by tokenIdentifier
     const user = await ctx.db
       .query("users")
@@ -50,7 +49,7 @@ export const createNewUser = mutation({
 
       githubUsername: identity.nickname ?? undefined,
       type: "free",
-      limit: 2,
+      limit: 3,
 
       createdAt: Date.now(),
       updatedAt: Date.now(),

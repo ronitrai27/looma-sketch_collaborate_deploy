@@ -17,6 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { InviteDialog } from "@/modules/projects/inviteDialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 const ProjectPage = () => {
   const params = useParams<{ id: Id<"projects"> }>();
@@ -31,6 +33,7 @@ const ProjectPage = () => {
   const currentUser = useQuery(api.users.getCurrentUser);
   const removeMember = useMutation(api.projects.removeMember);
 
+  // Checking for current user is Owner who is logged In....
   const isOwner =
     currentUser && membersData && currentUser._id === membersData.owner._id;
 
@@ -72,6 +75,7 @@ const ProjectPage = () => {
             className="text-xs cursor-pointer px-2!"
             size="sm"
             variant="outline"
+            disabled={!isOwner}
           >
             Edit project <LucideEdit className="w-4 h-4 ml-1" />
           </Button>
@@ -86,6 +90,9 @@ const ProjectPage = () => {
         </div>
       </div>
 
+      {/* AWS PROJECT THUMBNAIL SETUP  1080 x 260 */}
+      <div className="my-5 w-[1080px] h-[260px] bg-gray-200 rounded"></div>
+
       <Link href={`/dashboard/projects/${params.id}/canvas`}>
         <Button className="text-sm mt-5 cursor-pointer" size="sm">
           Go to canvas
@@ -95,80 +102,97 @@ const ProjectPage = () => {
       <p>below of that , will be code generated for particular canvas!</p>
 
       {/* Team Members Section */}
-      <div className="mt-8 border-t pt-6 max-w-3xl">
-        <h2 className="text-xl font-semibold mb-4">Team Members</h2>
-
-        <div className="grid gap-4">
-          {/* Owner */}
-          {membersData?.owner && (
-            <div className="flex items-center justify-between p-4 rounded-xl border bg-card text-card-foreground shadow-sm">
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={membersData.owner.imageUrl} />
-                  <AvatarFallback>
-                    {membersData.owner.name?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">
-                    {membersData.owner.name}{" "}
-                    <span className="text-xs text-muted-foreground ml-2 bg-secondary px-2 py-0.5 rounded-full">
-                      Owner
-                    </span>
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {membersData.owner.email}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Members */}
-          {membersData?.members?.map((member) => {
-            if (!member) return null;
-            return (
-              <div
-                key={member._id}
-                className="flex items-center justify-between p-4 rounded-xl border bg-card text-card-foreground shadow-sm"
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={member.imageUrl} />
-                    <AvatarFallback>{member.name?.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{member.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {member.email}
-                    </p>
+      <div className="my-8 max-w-[85%] mx-auto">
+        <Card className="p-3!">
+          <CardHeader>
+            <CardTitle>
+              <h2 className="text-xl font-medium font-pop text-center">
+                Team Members
+              </h2>
+            </CardTitle>
+            <h3 className="text-muted-foreground text-sm text-center">
+              Manage your Team efficiently
+            </h3>
+            <Separator/>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              {/* Owner */}
+              {membersData?.owner && (
+                <div className="flex items-center justify-between p-2 rounded shadow">
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={membersData.owner.imageUrl} />
+                      <AvatarFallback>
+                        {membersData.owner.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">
+                        {membersData.owner.name}{" "}
+                        <span className="text-xs text-muted-foreground ml-2 bg-secondary px-2 py-0.5 rounded-full">
+                          Owner
+                        </span>
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {membersData.owner.email}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                {isOwner && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    onClick={() =>
-                      removeMember({
-                        projectId: params.id,
-                        memberId: member._id,
-                      })
-                    }
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            );
-          })}
+              )}
 
-          {membersData?.members?.length === 0 && (
-            <p className="text-sm text-muted-foreground italic">
-              No other members in this project.
-            </p>
-          )}
-        </div>
+              {/* Members */}
+              {membersData?.members?.map((member) => {
+                if (!member) return null;
+                return (
+                  <div
+                    key={member._id}
+                    className="flex items-center justify-between p-2 rounded shadow"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={member.imageUrl} />
+                        <AvatarFallback>
+                          {member.name?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{member.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {member.email}
+                        </p>
+                      </div>
+                    </div>
+                    {isOwner && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() =>
+                          removeMember({
+                            projectId: params.id,
+                            memberId: member._id,
+                          })
+                        }
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+
+              {membersData?.members?.length === 0 && (
+                <div className="flex items-center justify-center my-4">
+                  <p className="text-sm text-muted-foreground italic">
+                    No Team Members Added yet !
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <InviteDialog
