@@ -105,7 +105,7 @@ const ProjectPage = () => {
           </Button>
         </Link>
 
-        <Link href={`/dashboard/projects/${params.id}/canvas`}>
+        <Link href={`/dashboard/projects/${params.id}/generate`}>
           <Button className="text-sm px-5!  cursor-pointer" size="sm">
             View generated code <LucideGlobe className="w-4 h-4 ml-1" />
           </Button>
