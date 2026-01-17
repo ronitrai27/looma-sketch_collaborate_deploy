@@ -10,7 +10,7 @@ export default defineSchema({
     hasCompletedOnboarding: v.boolean(),
     githubUsername: v.optional(v.string()),
     preferedTheme: v.optional(
-      v.union(v.literal("light"), v.literal("dark"), v.literal("system"))
+      v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
     ),
     // PLAN TYPE
     type: v.union(v.literal("free"), v.literal("pro"), v.literal("elite")),
@@ -27,13 +27,23 @@ export default defineSchema({
     projectTags: v.optional(v.array(v.string())), // min 2 max 5
     ownerId: v.id("users"),
     ownerEmail: v.string(),
-    inviteCode: v.optional(v.string()), 
+    inviteCode: v.optional(v.string()),
     inviteLink: v.optional(v.string()), // auto creates random invite link unique !
     isPublic: v.boolean(),
-    projectMembers: v.optional(v.array(v.id("users"))), 
+    // Now we store id + avatar 
+    projectMembers: v.optional(
+      v.array(
+        v.object({
+          userId: v.id("users"),
+          avatar: v.string(),
+        }),
+      ),
+    ),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_owner", ["ownerId"]).index("by_invite_code", ["inviteCode"]),
+  })
+    .index("by_owner", ["ownerId"])
+    .index("by_invite_code", ["inviteCode"]),
 
   // Style guide table
   styleGuides: defineTable({
@@ -43,5 +53,5 @@ export default defineSchema({
     fonts: v.optional(v.any()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_user", ["userId"])
+  }).index("by_user", ["userId"]),
 });

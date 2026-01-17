@@ -2,6 +2,7 @@
 
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
+// import { google } from '@ai-sdk/google';
 import { z } from 'zod';
 
 // Schema for exactly what you need

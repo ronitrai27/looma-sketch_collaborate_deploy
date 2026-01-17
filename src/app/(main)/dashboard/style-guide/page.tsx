@@ -14,7 +14,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import {
   LucidePalette,
@@ -26,10 +32,12 @@ import {
   LucidePaintRoller,
   LucideLock,
   LucideCloudBackup,
+  LucideMenu,
 } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../../../convex/_generated/api";
+import { Separator } from "@/components/ui/separator";
 
 const ColorCard = ({
   title,
@@ -133,8 +141,8 @@ const StyleGuidePage = () => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result as string);
             reader.readAsDataURL(file);
-          })
-      )
+          }),
+      ),
     ).then((imgs) => {
       setImages(imgs);
       setData(null); // Reset data on new upload
@@ -328,7 +336,7 @@ const StyleGuidePage = () => {
                       Aa
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
           </div>
@@ -353,44 +361,54 @@ const StyleGuidePage = () => {
             <p className="text-muted-foreground">No style guides saved yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {savedStyles.map((style) => (
               <Card
                 key={style._id}
-                className="overflow-hidden hover:shadow-md transition-shadow"
+                className="overflow-hidden hover:shadow-md transition-shadow p-0!"
               >
-                <CardHeader className="">
-                  <CardTitle className="flex justify-between items-center">
-                    <span className="truncate capitalize font-pop">
-                      {style.name}
-                    </span>
-                  </CardTitle>
+                <CardHeader className="grid grid-cols-3 hover:grid-cols-[2fr_1fr_1fr] transition-all duration-500! ease-in-out p-0! gap-0! bg-muted">
+                  {/* 1 */}
+                  <div
+                    className="h-16"
+                    style={{ backgroundColor: style.colors?.primary?.hex }}
+                    title="Primary"
+                  />
+
+                  {/* 2 */}
+                  <div
+                    className="h-16"
+                    style={{ backgroundColor: style.colors?.secondary?.hex }}
+                    title="Secondary"
+                  />
+                  {/* 3 */}
+
+                  <div
+                    className="h-16"
+                    style={{ backgroundColor: style.colors?.accent?.hex }}
+                    title="Accent"
+                  />
+                </CardHeader>
+                <CardContent className="py-0! px-4 -mt-3 ">
+                  <div className="flex items-center justify-between w-full text-sm capitalize">
+                    <p>{style.name}</p>
+                    <Button variant="ghost" size="icon-sm" className="cursor-pointer">
+                      <LucideMenu className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <span className="text-xs font-normal text-muted-foreground">
                     <LucideCloudBackup className="h-4 w-4 inline mr-1" />{" "}
                     {formatDistanceToNow(style.createdAt)} ago
                   </span>
-                </CardHeader>
-                <CardContent className="px-4 py-1 space-y-4">
-                  {/* Colors Preview */}
-                  <div className="flex gap-2">
-                    <div
-                      className="h-8 w-8 rounded-full shadow-sm"
-                      style={{ backgroundColor: style.colors?.primary?.hex }}
-                      title="Primary"
-                    />
-                    <div
-                      className="h-8 w-8 rounded-full shadow-sm"
-                      style={{ backgroundColor: style.colors?.secondary?.hex }}
-                      title="Secondary"
-                    />
-                    <div
-                      className="h-8 w-8 rounded-full shadow-sm"
-                      style={{ backgroundColor: style.colors?.accent?.hex }}
-                      title="Accent"
-                    />
-                  </div>
-                  {/* Fonts Preview */}
-                  <div className="text-sm text-muted-foreground">
+                  <Separator className="my-2" />
+                </CardContent>
+                <CardFooter className="flex flex-col text-left pb-3! px-4 -mt-5 space-y-2">
+                  <p className="text-sm text-muted-foreground mr-auto">
+                    <LucideType className="h-4 w-4 inline mr-3" />
+                    Typography
+                  </p>
+
+                  <div className="text-sm text-muted-foreground mr-auto">
                     <p className="truncate">
                       <span className="font-semibold text-foreground">
                         Fonts:
@@ -398,7 +416,7 @@ const StyleGuidePage = () => {
                       {style.fonts?.map((f: any) => f.name).join(", ")}
                     </p>
                   </div>
-                </CardContent>
+                </CardFooter>
               </Card>
             ))}
           </div>

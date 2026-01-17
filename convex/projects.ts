@@ -148,13 +148,13 @@ export const joinProject = mutation({
     }
 
     // Check if already a member
-    if (project.projectMembers?.includes(user._id)) {
+    if (project.projectMembers?.some((m) => m.userId === user._id)) {
       return { success: false, message: "Already a member" };
     }
 
     const newMembers = project.projectMembers
-      ? [...project.projectMembers, user._id]
-      : [user._id];
+      ? [...project.projectMembers, { userId: user._id, avatar: user.imageUrl || "" }]
+      : [{ userId: user._id, avatar: user.imageUrl || "" }];
 
     await ctx.db.patch(args.projectId, {
       projectMembers: newMembers,
@@ -183,7 +183,7 @@ export const getOwnerAndProjectMembers = query({
     }
 
     const members = await Promise.all(
-      (project.projectMembers || []).map((memberId) => ctx.db.get(memberId))
+      (project.projectMembers || []).map((member) => ctx.db.get(member.userId))
     );
 
     return {
@@ -230,7 +230,7 @@ export const removeMember = mutation({
     }
 
     const newMembers = (project.projectMembers || []).filter(
-      (memberId) => memberId !== args.memberId
+      (member) => member.userId !== args.memberId
     );
 
     await ctx.db.patch(args.projectId, {
@@ -267,7 +267,7 @@ export const getMemberProjects = query({
 
     return allProjects.filter((project) => 
       project.ownerId !== user._id && 
-      project.projectMembers?.includes(user._id)
+      project.projectMembers?.some((m) => m.userId === user._id)
     );
   },
 });

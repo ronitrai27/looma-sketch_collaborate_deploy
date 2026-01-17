@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const PROJECT_GRADIENTS = [
   "from-red-300 to-red-100",
@@ -251,11 +252,23 @@ const ProjectCard = ({ project, gradient, isMember }: ProjectCardProps) => {
             })}
           </p>
           <div className="flex items-center -space-x-2">
-            {/* Mock avatar stack or similar could go here */}
-            <div className="w-6 h-6 rounded-full bg-white/50 border border-white/20 flex items-center justify-center text-[10px] font-bold">
-              {project.projectMembers?.length || 0}
-            </div>
-          </div>
+                        {project.projectMembers?.slice(0, 3).map((member) => (
+                          <Avatar
+                            key={member.userId}
+                            className="w-8 h-8 border border-white/20"
+                          >
+                            <AvatarImage src={member.avatar} />
+                            <AvatarFallback>?</AvatarFallback>
+                          </Avatar>
+                        ))}
+
+                        {project.projectMembers &&
+                          project.projectMembers.length > 3 && (
+                            <div className="w-6 h-6 rounded-full bg-white/50 border border-white/20 flex items-center justify-center text-[10px] font-bold">
+                              +{project.projectMembers.length - 3}
+                            </div>
+                          )}
+                      </div>
         </CardFooter>
       </Card>
     </Link>

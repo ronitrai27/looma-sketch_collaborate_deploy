@@ -8,10 +8,22 @@ import { useMemo } from "react";
 import { CollaboratorAvatars } from "./CollaboratorAvatars";
 import { useUpdateMyPresence } from "@liveblocks/react/suspense";
 import { LiveCursors } from "./LiveCursors";
+import { useParams } from "next/navigation";
+import { Id } from "../../../../../../../convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "../../../../../../../convex/_generated/api";
 
 const Canvas = () => {
   const { user, isLoaded } = useUser();
   const updateMyPresence = useUpdateMyPresence();
+  const params = useParams();
+  const projectId = params.id as Id<"projects">;
+  // query project data
+  const project = useQuery(api.projects.getProjectById, {
+    projectId: projectId,
+  });
+
+  const inviteLink = project?.inviteLink;
 
   const userInfo = useMemo(() => {
     if (!user) return undefined;
@@ -25,7 +37,11 @@ const Canvas = () => {
   }, [user]);
 
   if (!isLoaded) {
-    return <div className="h-full w-full flex items-center justify-center">Loading user...</div>;
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        Loading user...
+      </div>
+    );
   }
 
   const store = useYjsStore({
@@ -35,26 +51,26 @@ const Canvas = () => {
 
   return (
     <div className="h-[calc(100vh-65px)] overflow-auto p-1 relative">
-      <CollaboratorAvatars />
+      <CollaboratorAvatars inviteLink={inviteLink!} />
       <Tldraw
         licenseKey={process.env.NEXT_PUBLIC_TLDRAW_LICENSE_KEY}
         store={store}
         onMount={(editor) => {
           // Set initial user preferences locally
           if (userInfo) {
-             editor.user.updateUserPreferences({
-                name: userInfo.name,
-                color: userInfo.color,
-                id: userInfo.id,
-             });
+            editor.user.updateUserPreferences({
+              name: userInfo.name,
+              color: userInfo.color,
+              id: userInfo.id,
+            });
           }
-          
+
           // Broadcast cursor presence
-          editor.on('event', (e) => {
-             if (e.name === 'pointer_move') {
-                 const { x, y } = editor.inputs.currentPagePoint;
-                 updateMyPresence({ cursor: { x, y } });
-             }
+          editor.on("event", (e) => {
+            if (e.name === "pointer_move") {
+              const { x, y } = editor.inputs.currentPagePoint;
+              updateMyPresence({ cursor: { x, y } });
+            }
           });
         }}
       >
@@ -74,4 +90,3 @@ function stringToColor(str: string) {
 }
 
 export default Canvas;
-
