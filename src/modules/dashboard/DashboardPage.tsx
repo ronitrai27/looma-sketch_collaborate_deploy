@@ -365,7 +365,7 @@ const DashboardPage = () => {
               <Spinner className="h-8 w-8 text-muted-foreground" />
             </div>
           ) : savedStyles.length === 0 ? (
-            <div className="text-center py-10 bg-muted/30 rounded-xl border border-dashed">
+            <div className="h-[200px] max-w-[260px] flex items-center justify-center bg-muted/30 rounded-lg border border-dashed border-black/30 hover:border-black/50 transition-colors cursor-pointer hover:bg-black/5">
               <p className="text-muted-foreground">
                 No style guides saved yet.
               </p>
