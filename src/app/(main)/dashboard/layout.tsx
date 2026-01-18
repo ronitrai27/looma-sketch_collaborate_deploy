@@ -36,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div>
         <Authenticated>
-          <SidebarProvider defaultOpen={true}>
+          <SidebarProvider defaultOpen={true} className="h-svh overflow-hidden">
             <AppSidebar />
             <SidebarInset>
               <header className="flex justify-between h-16 py-1 shrink-0 items-center border-b px-4">

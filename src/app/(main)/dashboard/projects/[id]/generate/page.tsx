@@ -195,39 +195,46 @@ export default function GeneratePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Minimal Header  */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={`/dashboard/projects/${projectId}/canvas`}>
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            
-            {generatedCode && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => copyToClipboard(generatedCode)}
-                className="gap-2"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copy
-                  </>
-                )}
-              </Button>
-            )}
+      <Tabs defaultValue="code" className="w-full">
+        {/* Minimal Header  */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-gray-500 hover:text-gray-900" 
+                  asChild
+                >
+                  <Link href={`/dashboard/projects/${projectId}/canvas`}>
+                    <ArrowLeft className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <div className="h-4 w-[1px] bg-gray-200 mx-2" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 font-medium">Project</span>
+                  <h1 className="text-sm font-semibold text-gray-900 leading-none">
+                    {project?.projectName || "Generating..."}
+                  </h1>
+                </div>
+              </div>
+              
+              {generatedCode && (
+                <TabsList className="grid grid-cols-2 w-[200px]">
+                  <TabsTrigger value="preview" className="gap-2">
+                    <Eye className="h-4 w-4" />
+                    Preview
+                  </TabsTrigger>
+                  <TabsTrigger value="code" className="gap-2">
+                    <Code2 className="h-4 w-4" />
+                    Code
+                  </TabsTrigger>
+                </TabsList>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {isGenerating ? (
@@ -239,17 +246,7 @@ export default function GeneratePage() {
           </div>
         ) : generatedCode ? (
           // Code/Preview Tabs - Claude Artifacts Style
-          <Tabs defaultValue="code" className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
-              <TabsTrigger value="preview" className="gap-2">
-                <Eye className="h-4 w-4" />
-                Preview
-              </TabsTrigger>
-              <TabsTrigger value="code" className="gap-2">
-                <Code2 className="h-4 w-4" />
-                Code
-              </TabsTrigger>
-            </TabsList>
+          <>
 
             <TabsContent value="preview" className="mt-0">
               <div className="bg-white rounded-lg border border-gray-200 p-8 min-h-[600px]">
@@ -297,7 +294,7 @@ export default function GeneratePage() {
                 </div>
               </div>
             </TabsContent>
-          </Tabs>
+          </>
         ) : (
           // Fallback if auto-generation didn't trigger
           <div className="flex flex-col items-center justify-center min-h-[600px]">
@@ -305,6 +302,7 @@ export default function GeneratePage() {
           </div>
         )}
       </div>
+      </Tabs>
     </div>
   );
 }
