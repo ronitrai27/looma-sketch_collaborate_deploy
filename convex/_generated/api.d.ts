@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as generatedCode from "../generatedCode.js";
 import type * as projects from "../projects.js";
 import type * as styleGuides from "../styleGuides.js";
 import type * as users from "../users.js";
@@ -19,6 +20,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  generatedCode: typeof generatedCode;
   projects: typeof projects;
   styleGuides: typeof styleGuides;
   users: typeof users;

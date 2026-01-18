@@ -39,6 +39,15 @@ export default defineSchema({
         }),
       ),
     ),
+    // Generated code storage
+    generatedCode: v.optional(
+      v.object({
+        code: v.string(),
+        description: v.string(),
+        analysisData: v.any(),
+        generatedAt: v.number(),
+      })
+    ),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
