@@ -18,12 +18,14 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { InviteDialog } from "@/modules/projects/inviteDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNow } from "date-fns";
-
+import Image from "next/image";
 
 const ProjectPage = () => {
   const params = useParams<{ id: Id<"projects"> }>();
@@ -43,6 +45,48 @@ const ProjectPage = () => {
     currentUser && membersData && currentUser._id === membersData.owner._id;
 
   const [inviteOpen, setInviteOpen] = useState(false);
+
+  // Figma Integration State
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isFigmaConnected, setIsFigmaConnected] = useState(false);
+
+  // Check Figma connection status on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const res = await fetch("/api/figma/status");
+        const data = await res.json();
+        setIsFigmaConnected(data.isConnected);
+      } catch (error) {
+        console.error("Failed to check Figma status:", error);
+      }
+    };
+    checkConnection();
+  }, []);
+
+  // Handle OAuth callback
+  useEffect(() => {
+    if (searchParams.get("figma_connected") === "true") {
+      setIsFigmaConnected(true);
+      toast.success("Successfully connected to Figma!");
+      router.replace(`/dashboard/projects/${params.id}/figma`);
+    }
+    if (searchParams.get("error")) {
+      toast.error(`Figma connection failed: ${searchParams.get("error")}`);
+      router.replace(`/dashboard/projects/${params.id}`);
+    }
+  }, [searchParams, params.id, router]);
+
+  const handleFigmaClick = async () => {
+    try {
+      const res = await fetch("/api/figma/auth-url");
+      const { url } = await res.json();
+      window.location.href = url;
+    } catch (error) {
+      toast.error("Failed to start Figma authentication");
+    }
+  };
 
   if (project === undefined) {
     return (
@@ -65,7 +109,7 @@ const ProjectPage = () => {
               "flex items-center gap-2 py-1 px-3 text-xs border rounded-full",
               project?.isPublic
                 ? "border-green-500 text-green-600 bg-green-50"
-                : "border-orange-500 text-orange-600 bg-orange-50"
+                : "border-orange-500 text-orange-600 bg-orange-50",
             )}
           >
             {project?.isPublic ? (
@@ -99,14 +143,54 @@ const ProjectPage = () => {
       <div className="my-5 w-[1080px] h-[260px] bg-gray-200 rounded"></div>
 
       <div className="flex w-full items-center justify-center gap-20 mt-5">
+        {/* ---------- */}
+        {isFigmaConnected ? (
+          <Link href={`/dashboard/projects/${params.id}/figma`}>
+            <Button className="cursor-pointer" variant="outline" size="sm">
+              Manage Figma Designs{" "}
+              <Image
+                src="/figma.png"
+                alt="Figma"
+                width={20}
+                height={20}
+                className="ml-2"
+              />
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            className="cursor-pointer"
+            variant="outline"
+            size="sm"
+            onClick={handleFigmaClick}
+          >
+            Connect Figma{" "}
+            <Image
+              src="/figma.png"
+              alt="Figma"
+              width={20}
+              height={20}
+              className="ml-2"
+            />
+          </Button>
+        )}
+        {/* ----------- */}
         <Link href={`/dashboard/projects/${params.id}/canvas`}>
-          <Button className="text-sm px-8!  cursor-pointer" size="sm">
+          <Button
+            className="text-sm px-8!  cursor-pointer"
+            size="sm"
+            variant="outline"
+          >
             Go to canvas <DraftingCompass className="w-4 h-4 ml-1" />
           </Button>
         </Link>
 
         <Link href={`/dashboard/projects/${params.id}/generate`}>
-          <Button className="text-sm px-5!  cursor-pointer" size="sm">
+          <Button
+            className="text-sm px-5!  cursor-pointer"
+            size="sm"
+            variant="outline"
+          >
             View generated code <LucideGlobe className="w-4 h-4 ml-1" />
           </Button>
         </Link>
@@ -211,20 +295,35 @@ const ProjectPage = () => {
         {/* RIGHT SIDE */}
         <Separator orientation="vertical" className="h-100!" />
         <div className="w-[30%] h-full flex flex-col  space-y-3">
-          <h3 className="text-center">Project Details <LucideInfo className="w-4 h-4 ml-2 inline" /></h3>
+          <h3 className="text-center">
+            Project Details <LucideInfo className="w-4 h-4 ml-2 inline" />
+          </h3>
           <p>
             Description:{" "}
             {project?.projectDescription ?? "No description added yet"}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {project?.projectTags?.map((tag) => (
-              <p key={tag} className="bg-muted py-1 px-3 rounded-full text-sm text-muted-foreground">
+              <p
+                key={tag}
+                className="bg-muted py-1 px-3 rounded-full text-sm text-muted-foreground"
+              >
                 {tag}
               </p>
             ))}
           </div>
-          <p>Created On: <span className="text-muted-foreground text-sm">{formatDistanceToNow(project?.createdAt!)}</span></p>
-          <p>Updated On: <span className="text-muted-foreground text-sm">{formatDistanceToNow(project?.updatedAt!)}</span></p>
+          <p>
+            Created On:{" "}
+            <span className="text-muted-foreground text-sm">
+              {formatDistanceToNow(project?.createdAt!)}
+            </span>
+          </p>
+          <p>
+            Updated On:{" "}
+            <span className="text-muted-foreground text-sm">
+              {formatDistanceToNow(project?.updatedAt!)}
+            </span>
+          </p>
         </div>
       </div>
 
