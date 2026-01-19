@@ -19,13 +19,12 @@ const Home = () => {
   }, [isAuthenticated, isAuthLoading, router]);
 
   if (isAuthLoading) {
-    toast.loading("Checking session...", {
-      id: "checking-session",
-    });
+    // toast.loading("Checking session...", {
+    //   id: "checking-session",
+    // });
     return (
       <div className="flex items-center justify-center h-screen w-full bg-black text-white">
-        <Loader2 className="animate-spin w-5 h-5 inline mr-3" /> Checking
-        session...
+        <Loader2 className="animate-spin w-5 h-5 inline mr-3" /> Connecting with Looma environment...
       </div>
     );
   }

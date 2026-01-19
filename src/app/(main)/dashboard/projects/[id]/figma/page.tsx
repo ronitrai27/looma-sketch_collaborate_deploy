@@ -12,6 +12,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -26,11 +27,12 @@ import {
   ExternalLink,
   Calendar,
   History,
+  LucideExternalLink,
+  Trash,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { FigmaProcessor } from "@/modules/figma/processor";
-import { FigmaToTldrawConverter } from "@/modules/figma/figmaToTldraw";
 
 export default function FigmaPage() {
   const params = useParams<{ id: Id<"projects"> }>();
@@ -96,7 +98,11 @@ export default function FigmaPage() {
   };
 
   const handleImportToCanvas = () => {
-    // TO:DO - NEED ANOTHER SIMPLE CANVAS TO SHOW FIGMA DESIGN.
+    if (figmaUrl) {
+      router.push(`/dashboard/projects/${params.id}/figma/whiteboard?url=${encodeURIComponent(figmaUrl)}`);
+    } else {
+      toast.error("Please import a design first");
+    }
   };
 
   const handleReImport = async (url: string) => {
@@ -286,38 +292,11 @@ export default function FigmaPage() {
 
       {/* Actions */}
       {fileData && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="w-5 h-5" />
-              Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex gap-3">
-            <Button onClick={handleImportToCanvas}>Import to Canvas</Button>
-            <Button
-              variant="outline"
-              onClick={() => console.log(processedData)}
-            >
-              View Raw Data
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const json = JSON.stringify(processedData, null, 2);
-                const blob = new Blob([json], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${processedData?.name || "figma-export"}.json`;
-                a.click();
-                toast.success("Downloaded JSON file!");
-              }}
-            >
-              Download JSON
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex items-center justify-center">
+          <Button onClick={handleImportToCanvas} variant="outline" size="sm">
+            View Design <LucideExternalLink />
+          </Button>
+        </div>
       )}
 
       {/*--------------- Saved Imports Section ---------------*/}
@@ -336,7 +315,7 @@ export default function FigmaPage() {
               <Spinner className="h-6 w-6" />
             </div>
           ) : savedImports.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-12 bg-muted/20 rounded-lg border border-dashed text-center">
+            <div className="flex flex-col items-center justify-center p-12 bg-muted/70 rounded-lg border border-dashed border-black/30 text-center">
               <Layers className="h-10 w-10 text-muted-foreground/30 mb-3" />
               <h3 className="font-medium text-muted-foreground">
                 No saved designs yet
@@ -346,24 +325,24 @@ export default function FigmaPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
               {savedImports.map((imp) => (
                 <Card
                   key={imp._id}
-                  className="overflow-hidden hover:shadow-md transition-shadow group"
+                  className="overflow-hidden p-0 "
                 >
                   <div className="aspect-video w-full bg-muted relative overflow-hidden flex items-center justify-center">
                     {imp.thumbnailUrl ? (
                       <img
                         src={imp.thumbnailUrl}
                         alt={imp.fileName}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform "
                       />
                     ) : (
                       <FileImage className="w-12 h-12 text-muted-foreground/30" />
                     )}
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-4">
-                      <Button
+                      {/* <Button
                         size="sm"
                         className="w-full bg-blue-600 hover:bg-blue-700"
                         onClick={() => handleReImport(imp.fileUrl)}
@@ -375,8 +354,8 @@ export default function FigmaPage() {
                           <Download className="h-3 w-3 mr-2" />
                         )}
                         Load Design
-                      </Button>
-                      <div className="flex gap-2 w-full">
+                      </Button> */}
+                      {/* <div className="flex gap-2 w-full">
                         <Link
                           href={imp.fileUrl}
                           target="_blank"
@@ -391,25 +370,41 @@ export default function FigmaPage() {
                             Link
                           </Button>
                         </Link>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
-                  <CardHeader className="p-4">
+                  <CardHeader className="px-4 py-1!">
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="text-base truncate max-w-[200px]">
+                        <CardTitle className="text-base capitalize truncate max-w-[200px]">
                           {imp.fileName}
                         </CardTitle>
                         <CardDescription className="flex items-center gap-1 text-xs mt-1">
-                          <Calendar className="h-3 w-3" />
+                          <Calendar className="h-4 w-4" />
                           {new Date(imp.importedAt).toLocaleDateString()}
                         </CardDescription>
                       </div>
-                      <div className="text-xs bg-muted px-2 py-0.5 rounded text-muted-foreground">
-                        v{imp.fileKey.substring(0, 4)}
+                      <div className="">
+                       <Button size="icon-sm" variant="outline" className="shrink-0">
+                        <ExternalLink className="h-4 w-4" />
+                       </Button>
                       </div>
                     </div>
                   </CardHeader>
+                  <CardFooter className="p-2! -mt-3 flex items-center justify-evenly">
+                    <Button size="sm" variant="outline">
+                      Load Design
+                       <Download className="h-4 w-4 mr-2" />
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      Canvas
+                      <LucideExternalLink className="h-4 w-4 mr-2" />
+                    </Button>
+
+                    <Button variant="destructive" size="icon-sm">
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </CardFooter>
                 </Card>
               ))}
             </div>

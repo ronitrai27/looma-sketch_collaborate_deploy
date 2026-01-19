@@ -65,22 +65,51 @@ export async function POST(request: NextRequest) {
       firstPage: fileData.document.children?.[0]?.name,
     });
 
-    // Also fetch image exports for thumbnails
-    console.log('🔄 Fetching images...');
-    const imageResponse = await fetch(
-      `https://api.figma.com/v1/images/${fileKey}?format=png&scale=1`,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
+    // Also fetch high-quality images for top-level frames
+    console.log('🔄 Fetching high-quality images for frames...');
+    
+    const extractTopLevelFrames = (document: any): string[] => {
+      const ids: string[] = [];
+      if (!document.children) return ids;
+      
+      for (const page of document.children) {
+        if (page.type === 'CANVAS' && page.children) {
+          for (const child of page.children) {
+            if (child.type === 'FRAME' || child.type === 'COMPONENT' || child.type === 'INSTANCE') {
+              ids.push(child.id);
+            }
+          }
+        }
       }
-    );
+      return ids;
+    };
+
+    // Fetch first 15 frames at 2x scale for high quality
+    const frameIds = extractTopLevelFrames(fileData.document).slice(0, 15);
+    console.log(`🔍 Found ${frameIds.length} top-level frames to fetch images for`);
 
     let images = {};
-    if (imageResponse.ok) {
-      const imageData = await imageResponse.json();
-      images = imageData.images || {};
-      console.log('✅ Images fetched:', Object.keys(images).length);
+    if (frameIds.length > 0) {
+      try {
+        const imageResponse = await fetch(
+          `https://api.figma.com/v1/images/${fileKey}?ids=${frameIds.join(',')}&format=png&scale=2`,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        if (imageResponse.ok) {
+          const imageData = await imageResponse.json();
+          images = imageData.images || {};
+          console.log('✅ High-quality images fetched:', Object.keys(images).length);
+        } else {
+          console.warn('⚠️ Failed to fetch images:', await imageResponse.text());
+        }
+      } catch (error) {
+        console.error('❌ Error fetching images:', error);
+      }
     }
 
     return NextResponse.json({

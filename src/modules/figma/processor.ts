@@ -42,23 +42,22 @@ export class FigmaProcessor {
   static extractFrames(fileData: GetFileResponse) {
     const frames: any[] = [];
     
-    const traverse = (node: any) => {
-      if (node.type === 'FRAME' || node.type === 'COMPONENT') {
-        frames.push({
-          id: node.id,
-          name: node.name,
-          type: node.type,
-          bounds: node.absoluteBoundingBox,
-          backgroundColor: node.backgroundColor,
+    fileData.document.children?.forEach((page: any) => {
+      if (page.type === 'CANVAS') {
+        page.children?.forEach((node: any) => {
+          if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE') {
+            frames.push({
+              id: node.id,
+              name: node.name,
+              type: node.type,
+              bounds: node.absoluteBoundingBox,
+              backgroundColor: node.backgroundColor,
+            });
+          }
         });
       }
-      
-      if (node.children) {
-        node.children.forEach(traverse);
-      }
-    };
-    
-    fileData.document.children?.forEach(traverse);
+    });
+
     return frames;
   }
 
