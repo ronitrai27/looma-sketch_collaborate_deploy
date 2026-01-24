@@ -143,8 +143,8 @@ const ProjectPage = () => {
       <div className="my-5 w-[1080px] h-[260px] bg-gray-200 rounded"></div>
 
       <div className="flex w-full items-center justify-center gap-20 mt-5">
-        {/* ---------- */}
-        {isFigmaConnected ? (
+        {/* ---------------FIGMA SETUP------------------- */}
+        {/* {isFigmaConnected ? (
           <Link href={`/dashboard/projects/${params.id}/figma`}>
             <Button className="cursor-pointer" variant="outline" size="sm">
               Manage Figma Designs{" "}
@@ -173,8 +173,8 @@ const ProjectPage = () => {
               className="ml-2"
             />
           </Button>
-        )}
-        {/* ----------- */}
+        )} */}
+        {/* -------------------------------------------------- */}
         <Link href={`/dashboard/projects/${params.id}/canvas`}>
           <Button
             className="text-sm px-8!  cursor-pointer"
