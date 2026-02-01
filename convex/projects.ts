@@ -29,9 +29,8 @@ export const createProject = mutation({
       throw new Error("Unauthorized");
     }
 
-
-    const inviteCode = Math.random().toString(36).substring(2, 10); 
-    const inviteLink = `http://localhost:3000/invite/${inviteCode}`; 
+    const inviteCode = Math.random().toString(36).substring(2, 10);
+    const inviteLink = `http://localhost:3000/invite/${inviteCode}`;
 
     const projectId = await ctx.db.insert("projects", {
       projectName: args.name,
@@ -64,7 +63,7 @@ export const getProjects = query({
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier)
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
       )
       .unique();
 
@@ -133,7 +132,7 @@ export const joinProject = mutation({
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier)
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
       )
       .unique();
 
@@ -153,7 +152,10 @@ export const joinProject = mutation({
     }
 
     const newMembers = project.projectMembers
-      ? [...project.projectMembers, { userId: user._id, avatar: user.imageUrl || "" }]
+      ? [
+          ...project.projectMembers,
+          { userId: user._id, avatar: user.imageUrl || "" },
+        ]
       : [{ userId: user._id, avatar: user.imageUrl || "" }];
 
     await ctx.db.patch(args.projectId, {
@@ -183,7 +185,7 @@ export const getOwnerAndProjectMembers = query({
     }
 
     const members = await Promise.all(
-      (project.projectMembers || []).map((member) => ctx.db.get(member.userId))
+      (project.projectMembers || []).map((member) => ctx.db.get(member.userId)),
     );
 
     return {
@@ -192,7 +194,6 @@ export const getOwnerAndProjectMembers = query({
     };
   },
 });
-
 
 // ===============================
 // REMOVE PROJECT MEMBER
@@ -212,7 +213,7 @@ export const removeMember = mutation({
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier)
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
       )
       .unique();
 
@@ -230,7 +231,7 @@ export const removeMember = mutation({
     }
 
     const newMembers = (project.projectMembers || []).filter(
-      (member) => member.userId !== args.memberId
+      (member) => member.userId !== args.memberId,
     );
 
     await ctx.db.patch(args.projectId, {
@@ -253,7 +254,7 @@ export const getMemberProjects = query({
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier)
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
       )
       .unique();
 
@@ -261,13 +262,41 @@ export const getMemberProjects = query({
       throw new Error("User not found");
     }
 
-    // Since we can't easily index arrays in Convex for 'contains', 
+    // Since we can't easily index arrays in Convex for 'contains',
     // we fetch and filter. For scale, we'd use a separate joining table.
     const allProjects = await ctx.db.query("projects").collect();
 
-    return allProjects.filter((project) => 
-      project.ownerId !== user._id && 
-      project.projectMembers?.some((m) => m.userId === user._id)
+    return allProjects.filter(
+      (project) =>
+        project.ownerId !== user._id &&
+        project.projectMembers?.some((m) => m.userId === user._id),
     );
+  },
+});
+
+// ============================
+// GET ALL CODESPACE BY PROJECT ID
+// ============================
+export const getCodespaces = query({
+  args: {
+    projectId: v.id("projects"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthenticated");
+    }
+
+    const project = await ctx.db.get(args.projectId);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    const codespaces = await ctx.db
+      .query("codespaces")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
+    return codespaces;
   },
 });
