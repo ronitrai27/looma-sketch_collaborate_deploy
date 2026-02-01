@@ -13,7 +13,9 @@ export default defineSchema({
       v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
     ),
     // PLAN TYPE
-    type: v.optional(v.union(v.literal("free"), v.literal("pro"), v.literal("elite"))),
+    type: v.optional(
+      v.union(v.literal("free"), v.literal("pro"), v.literal("elite")),
+    ),
     // PROJECT LIMIT
     limit: v.optional(v.union(v.literal(3), v.literal(6), v.literal(12))),
     // ROLES
@@ -32,7 +34,7 @@ export default defineSchema({
     inviteCode: v.optional(v.string()),
     inviteLink: v.optional(v.string()), // auto creates random invite link unique !
     isPublic: v.boolean(),
-    // Now we store id + avatar 
+    // Now we store id + avatar
     projectMembers: v.optional(
       v.array(
         v.object({
@@ -57,7 +59,21 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 
+  // CODESPACE TABLE LINKED TO PROJECT.
+  // This table will contain all generated code for the project.
+  codespaces: defineTable({
+    projectId: v.id("projects"),
+    updatedBy: v.optional(v.id("users")),
+    codespaceName: v.optional(v.string()),
+    code: v.optional(v.string()),
+    updatedAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_project", ["projectId"])
+    .index("by_updated_by", ["updatedBy"]),
+
   // Figma imports table
+  // IGNORE THIS FOR NOW ~
   figmaImports: defineTable({
     projectId: v.id("projects"),
     fileKey: v.string(),

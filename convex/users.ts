@@ -33,11 +33,12 @@ export const createNewUser = mutation({
       name: identity.name ?? "Anonymous",
       tokenIdentifier: identity.tokenIdentifier,
       email: identity.email ?? "",
+      githubUsername: identity.nickname ?? "",
       imageUrl: identity.pictureUrl ?? undefined,
       hasCompletedOnboarding: false,
       type: "free",
       limit: 3,
-      usersType: "user", // Strictly user
+      usersType: "user", 
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });

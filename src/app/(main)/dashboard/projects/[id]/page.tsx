@@ -47,46 +47,46 @@ const ProjectPage = () => {
   const [inviteOpen, setInviteOpen] = useState(false);
 
   // Figma Integration State
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isFigmaConnected, setIsFigmaConnected] = useState(false);
+  // const router = useRouter();
+  // const searchParams = useSearchParams();
+  // const [isFigmaConnected, setIsFigmaConnected] = useState(false);
 
   // Check Figma connection status on mount
-  useEffect(() => {
-    const checkConnection = async () => {
-      try {
-        const res = await fetch("/api/figma/status");
-        const data = await res.json();
-        setIsFigmaConnected(data.isConnected);
-      } catch (error) {
-        console.error("Failed to check Figma status:", error);
-      }
-    };
-    checkConnection();
-  }, []);
-
+  // useEffect(() => {
+  //   const checkConnection = async () => {
+  //     try {
+  //       const res = await fetch("/api/figma/status");
+  //       const data = await res.json();
+  //       setIsFigmaConnected(data.isConnected);
+  //     } catch (error) {
+  //       console.error("Failed to check Figma status:", error);
+  //     }
+  //   };
+  //   checkConnection();
+  // }, []);
+// --------------------------------------------
   // Handle OAuth callback
-  useEffect(() => {
-    if (searchParams.get("figma_connected") === "true") {
-      setIsFigmaConnected(true);
-      toast.success("Successfully connected to Figma!");
-      router.replace(`/dashboard/projects/${params.id}/figma`);
-    }
-    if (searchParams.get("error")) {
-      toast.error(`Figma connection failed: ${searchParams.get("error")}`);
-      router.replace(`/dashboard/projects/${params.id}`);
-    }
-  }, [searchParams, params.id, router]);
+  // useEffect(() => {
+  //   if (searchParams.get("figma_connected") === "true") {
+  //     setIsFigmaConnected(true);
+  //     toast.success("Successfully connected to Figma!");
+  //     router.replace(`/dashboard/projects/${params.id}/figma`);
+  //   }
+  //   if (searchParams.get("error")) {
+  //     toast.error(`Figma connection failed: ${searchParams.get("error")}`);
+  //     router.replace(`/dashboard/projects/${params.id}`);
+  //   }
+  // }, [searchParams, params.id, router]);
 
-  const handleFigmaClick = async () => {
-    try {
-      const res = await fetch("/api/figma/auth-url");
-      const { url } = await res.json();
-      window.location.href = url;
-    } catch (error) {
-      toast.error("Failed to start Figma authentication");
-    }
-  };
+  // const handleFigmaClick = async () => {
+  //   try {
+  //     const res = await fetch("/api/figma/auth-url");
+  //     const { url } = await res.json();
+  //     window.location.href = url;
+  //   } catch (error) {
+  //     toast.error("Failed to start Figma authentication");
+  //   }
+  // };
 
   if (project === undefined) {
     return (
@@ -176,6 +176,7 @@ const ProjectPage = () => {
         )} */}
         {/* -------------------------------------------------- */}
         <Link href={`/dashboard/projects/${params.id}/canvas`}>
+        
           <Button
             className="text-sm px-8!  cursor-pointer"
             size="sm"
@@ -185,13 +186,13 @@ const ProjectPage = () => {
           </Button>
         </Link>
 
-        <Link href={`/dashboard/projects/${params.id}/generate`}>
+        <Link href={`/dashboard/projects/${params.id}/codespace`}>
           <Button
             className="text-sm px-5!  cursor-pointer"
             size="sm"
             variant="outline"
           >
-            View generated code <LucideGlobe className="w-4 h-4 ml-1" />
+            Go to codespace <LucideGlobe className="w-4 h-4 ml-1" />
           </Button>
         </Link>
       </div>
