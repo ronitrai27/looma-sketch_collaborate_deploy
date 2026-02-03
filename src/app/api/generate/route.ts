@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 
     // gemini-3-pro-preview
     const result = streamText({
-      model: google("gemini-2.5-pro"),
+      model: google("gemini-3-flash-preview"),
       system: `You are an expert web developer specializing in modern, responsive UI design using Tailwind CSS and Flowbite components.
 
 ## Response Modes
@@ -50,9 +50,11 @@ Use as appropriate:
 - Tippy.js (tooltips)
 
 ### Images
-- use placeholder images
-- Placeholder images via https://placehold.co    
+
+- Light mode: https://community.softr.io/uploads/db9110/original/2X/7/74e6e7e382d0ff5d7773ca9a87e6f6f8817a68a6.jpeg
+- Dark mode: https://www.cibaky.com/wp-content/uploads/2015/12/placeholder-3.jpg
 - Always add descriptive alt text
+
 
 ### Best Practices
 - Semantic HTML5 elements

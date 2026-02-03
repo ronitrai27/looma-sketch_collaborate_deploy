@@ -6,6 +6,7 @@ import {
   Loader2,
   LucideBot,
   LucideBrain,
+  LucideExternalLink,
   LucideLoader,
   MessageSquare,
   X,
@@ -250,11 +251,12 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
         </h3>
 
         {/* if message , show clear button to clear message + generated code */}
-        {messages.length > 0 && (
+        {(messages.length > 0 || urlCodeMessages.length > 0) && (
           <Button
             onClick={() => {
               setMessages([]);
               setGeneratedCode("");
+              setUrlCodeMessages([]);
             }}
             className="cursor-pointer text-[10px] p-2!"
             size="sm"
@@ -265,9 +267,109 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
         )}
       </div>
       <div className="flex-1 overflow-y-auto p-2">
+        {/* URL Code Messages - Show BEFORE Conversation if no messages, AFTER if messages exist */}
+        {messages.length === 0 && urlCodeMessages.length > 0 && (
+          <div className="space-y-4 mb-4">
+            {urlCodeMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                {msg.role === "user" ? (
+                  // User Message - URL Request with Preview
+                  <div className="max-w-[90%] bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <LinkIcon className="w-4 h-4" />
+                        <span className="font-semibold text-sm">Website Recreation Request</span>
+                      </div>
+                      <p className="text-sm mb-3">{msg.content}</p>
+                      
+                      {/* Website Preview Iframe */}
+                      <div className="bg-white rounded-lg overflow-hidden border-2 border-blue-300 shadow-inner">
+                        <div className="bg-gray-100 px-3 py-1.5 flex items-center gap-2 border-b border-gray-200">
+                          <div className="flex gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-red-400" />
+                            <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                            <div className="w-2 h-2 rounded-full bg-green-400" />
+                          </div>
+                          <span className="text-xs text-gray-600 truncate flex-1">
+                            {msg.content.replace("Recreate this website: ", "")}
+                          </span>
+                        </div>
+                        <iframe
+                          src={msg.content.replace("Recreate this website: ", "")}
+                          className="w-full h-48 bg-white"
+                          sandbox="allow-same-origin"
+                          title="Website Preview"
+                          onError={(e) => {
+                            // Fallback: hide iframe on error
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      </div>
+                      
+                      {/* View Original Button */}
+                      <a
+                        href={msg.content.replace("Recreate this website: ", "")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        <LucideExternalLink className="w-4 h-4" />
+                        View Original Website
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  // Assistant Message - Success Response
+                  <div className="max-w-[90%] bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-xl shadow-md overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <LucideBrain className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-green-600 dark:text-green-400">
+                            Recreation Complete
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {msg.content}
+                        </p>
+                      </div>
+                      
+                      {/* Success Metrics */}
+                      {msg.content.includes("characters") && (
+                        <div className="mt-4 grid grid-cols-2 gap-2">
+                          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Code Size</p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                              {msg.content.match(/(\d+)\s+characters/)?.[1] || "0"}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">characters</p>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">✓</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Ready</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         <Conversation>
           <ConversationContent>
-            {messages.length === 0 ? (
+            {messages.length === 0 && urlCodeMessages.length === 0 ? (
               <ConversationEmptyState
                 icon={<MessageSquare className="size-12" />}
                 title="Start a conversation"
@@ -304,17 +406,138 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                     </span>
                   </div>
                 )}
-
-                {isScrapingUrl && (
-                  <div className="flex items-center gap-2 text-blue-600 text-sm animate-pulse">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <p>Backend processing website...</p>
-                  </div>
-                )}
               </>
             )}
           </ConversationContent>
         </Conversation>
+
+        {/* URL Code Messages - Show AFTER Conversation if messages exist */}
+        {messages.length > 0 && urlCodeMessages.length > 0 && (
+          <div className="space-y-4 mt-4">
+            {urlCodeMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                {msg.role === "user" ? (
+                  // User Message - URL Request with Preview
+                  <div className="max-w-[90%] bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <LinkIcon className="w-4 h-4" />
+                        <span className="font-semibold text-sm">Website Recreation Request</span>
+                      </div>
+                      <p className="text-sm mb-3">{msg.content}</p>
+                      
+                      {/* Website Preview Iframe */}
+                      <div className="bg-white rounded-lg overflow-hidden border-2 border-blue-300 shadow-inner">
+                        <div className="bg-gray-100 px-3 py-1.5 flex items-center gap-2 border-b border-gray-200">
+                          <div className="flex gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-red-400" />
+                            <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                            <div className="w-2 h-2 rounded-full bg-green-400" />
+                          </div>
+                          <span className="text-xs text-gray-600 truncate flex-1">
+                            {msg.content.replace("Recreate this website: ", "")}
+                          </span>
+                        </div>
+                        <iframe
+                          src={msg.content.replace("Recreate this website: ", "")}
+                          className="w-full h-48 bg-white"
+                          sandbox="allow-same-origin"
+                          title="Website Preview"
+                          onError={(e) => {
+                            // Fallback: hide iframe on error
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      </div>
+                      
+                      {/* View Original Button */}
+                      <a
+                        href={msg.content.replace("Recreate this website: ", "")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+                      >
+                        <LucideExternalLink className="w-4 h-4" />
+                        View Original Website
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  // Assistant Message - Success Response
+                  <div className="max-w-[90%] bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800 rounded-xl shadow-md overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <LucideBrain className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-green-900 dark:text-green-100">
+                            Looma AI
+                          </p>
+                          <p className="text-xs text-green-600 dark:text-green-400">
+                            Recreation Complete
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {msg.content}
+                        </p>
+                      </div>
+                      
+                      {/* Success Metrics */}
+                      {msg.content.includes("characters") && (
+                        <div className="mt-4 grid grid-cols-2 gap-2">
+                          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Code Size</p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                              {msg.content.match(/(\d+)\s+characters/)?.[1] || "0"}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">characters</p>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">✓</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Ready</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Animated Loader for URL Scraping */}
+        {isScrapingUrl && (
+          <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border border-blue-200 dark:border-blue-800 animate-in fade-in duration-300">
+            <div className="flex items-start gap-3">
+              <div className="relative">
+                {/* <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                <div className="absolute inset-0 w-5 h-5 bg-blue-400 rounded-full animate-ping opacity-20" /> */}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                  Processing Website
+                </p>
+                <p className="text-xs text-blue-700 dark:text-blue-300">
+                  Analyzing layout, extracting styles, and generating code...
+                </p>
+                <div className="mt-2 flex gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       {/* INPUT AREA */}
       <div className="relative mt-auto border-t border-border px-3 py-3">
@@ -336,7 +559,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
               {isScrapingUrl ? (
                 <>
                   <Loader className="w-4 h-4 animate-spin mr-2" />
-                  Processing...
+                  Processing
                 </>
               ) : (
                 "Recreate"

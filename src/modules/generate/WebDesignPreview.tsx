@@ -25,6 +25,39 @@ interface WebDesignPreviewProps {
   designCode: string;
 }
 
+const getShell = (code: string, isDesign: boolean = false) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <style>
+      body { margin: 0; padding: 0; min-height: 100vh; }
+      ${
+        isDesign
+          ? `
+      .hover-outline { outline: 2px dotted #3b82f6 !important; outline-offset: -2px !important; }
+      .selected-outline { outline: 2px solid #ef4444 !important; outline-offset: -2px !important; }
+      `
+          : ""
+      }
+    </style>
+</head>
+<body class="bg-gray-50">
+${code}
+</body>
+</html>
+`;
+
 const WebDesignPreview = ({
   onToggleTools,
   showTools,
@@ -54,30 +87,7 @@ const WebDesignPreview = ({
     }
   }, [designCode]);
 
-  const fullHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <style>
-      body { margin: 0; padding: 0; min-height: 100vh; }
-      .hover-outline { outline: 2px dotted #3b82f6 !important; outline-offset: -2px !important; }
-      .selected-outline { outline: 2px solid #ef4444 !important; outline-offset: -2px !important; }
-    </style>
-</head>
-<body class="bg-gray-50">
-${displayCode}
-</body>
-</html>
-`;
+  const fullHtml = getShell(displayCode, true);
 
   // ONLY WHEN ITS IN DESIGN MODE SELECTED (NOT PREVIEW)
   // SELECTABLE DOM ELEMENT-------------------------------
@@ -234,9 +244,6 @@ ${displayCode}
             <p>No design yet</p>
           </div>
         )}
-        {/* Loading */}
-        {/* {isLoading && <div className="">loading....</div>} */}
-
         {/* Iframe preview */}
         {displayCode.length > 0 && (
           <motion.div
@@ -304,8 +311,18 @@ ${displayCode}
           </Button>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="default" size="sm" className="cursor-pointer bg-blue-500 text-white hover:bg-blue-600">
-            Publish <LucideGlobe/>
+          <Button
+            variant="default"
+            size="sm"
+            className="cursor-pointer bg-blue-500 text-white hover:bg-blue-600"
+            onClick={() => {
+              const publishHtml = getShell(designCode, false);
+              const blob = new Blob([publishHtml], { type: "text/html" });
+              const url = URL.createObjectURL(blob);
+              window.open(url, "_blank");
+            }}
+          >
+            Publish <LucideGlobe />
           </Button>
           <Button variant="default" size="sm" className="cursor-pointer px-6!">
             Download in React{" "}

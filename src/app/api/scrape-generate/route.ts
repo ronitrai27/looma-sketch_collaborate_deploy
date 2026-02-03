@@ -101,6 +101,12 @@ Your task is to analyze the provided HIGH-RESOLUTION screenshot and recreate the
    - Grid & flex structure
    - Padding, margins, gaps (exact Tailwind scale)
 
+4. **UI & Effects**
+   - Border radius
+   - Shadows
+   - Hover & transition states
+   - Buttons, cards, forms, icons
+
 ━━━━━━━━━━━━━━━━━━━━
 🛠️ IMPLEMENTATION RULES
 ━━━━━━━━━━━━━━━━━━━━
