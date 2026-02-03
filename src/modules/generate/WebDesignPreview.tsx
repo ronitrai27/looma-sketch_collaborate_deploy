@@ -5,6 +5,7 @@ import {
   LucideDownload,
   LucideExternalLink,
   LucideEye,
+  LucideGlobe,
   LucideMonitor,
   LucidePaintBucket,
   LucidePaintbrush,
@@ -303,8 +304,8 @@ ${displayCode}
           </Button>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="default" size="sm" className="cursor-pointer">
-            View <LucideExternalLink />
+          <Button variant="default" size="sm" className="cursor-pointer bg-blue-500 text-white hover:bg-blue-600">
+            Publish <LucideGlobe/>
           </Button>
           <Button variant="default" size="sm" className="cursor-pointer px-6!">
             Download in React{" "}

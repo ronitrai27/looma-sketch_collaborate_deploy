@@ -24,6 +24,7 @@ import {
 } from "@/components/ai-elements/message";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   onCodeChange?: (code: string) => void;
@@ -56,6 +57,40 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
   });
 
   console.log("messages in client side", messages);
+
+  // STATUS CHANGE HANDLING-------------------------------------
+  useEffect(() => {
+    if (status === "submitted") {
+      toast.loading("Analyzing context...", { id: "code-loading" });
+    
+    } else if (
+        // @ts-ignore
+      status !== "submitted" &&
+      status !== "error" &&
+      status === "streaming"
+    ) {
+      toast.dismiss("code-loading");
+      toast.loading("Executing...", { id: "code-generation" });
+      // @ts-ignore
+    } else if (status === "ready" && status !== "submitted" && messages.length > 0) {
+      toast.dismiss("code-loading");
+      toast.dismiss("code-generation");
+      toast.success("Execution Successfull.");
+    } else if (status === "error") {
+      toast.dismiss("code-loading");
+      toast.dismiss("code-generation");
+      toast.error("Failed to execute.");
+    }
+  }, [status, onStatusChange]);
+
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
+
+    sendMessage({
+      parts: [{ type: "text", text: input }],
+    });
+    setInput("");
+  };
 
   // DETECT URL IN INPUT-------------------------------------
   useEffect(() => {
@@ -168,7 +203,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                     <span>
                       {status === "submitted"
                         ? "AI is thinking..."
-                        : "AI is typing..."}
+                        : "AI is executing..."}
                     </span>
                   </div>
                 )}
@@ -184,7 +219,9 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
             <div className="flex items-center gap-2 text-sm text-blue-700">
               <LinkIcon className="w-4 h-4" />
               <span className="font-medium">URL:</span>
-              <span className="truncate max-w-[180px] text-sm text-muted-foreground dark:text-black">{detectedUrl}</span>
+              <span className="truncate max-w-[180px] text-sm text-muted-foreground dark:text-black">
+                {detectedUrl}
+              </span>
             </div>
             <Button
               size="sm"
@@ -227,16 +264,14 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
           }}
           onKeyDown={async (event) => {
             if (event.key === "Enter") {
-              sendMessage({
-                parts: [{ type: "text", text: input }],
-              });
-              setInput("");
+              handleSendMessage();
             }
           }}
         />
         <Button
           className="cursor-pointer text-xs absolute bottom-6 right-5"
           size="icon-sm"
+          onClick={handleSendMessage}
           variant="default"
         >
           <LucideBrain />
