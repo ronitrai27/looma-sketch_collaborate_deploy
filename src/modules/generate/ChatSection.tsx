@@ -3,6 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   LinkIcon,
   Loader,
+  Loader2,
   LucideBot,
   LucideBrain,
   LucideLoader,
@@ -45,7 +46,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
   // SCRAPING
   const [isScrapingUrl, setIsScrapingUrl] = useState(false);
   const [detectedUrl, setDetectedUrl] = useState<string | null>(null);
-  const [visionMessages, setVisionMessages] = useState<
+  const [urlCodeMessages, setUrlCodeMessages] = useState<
     Array<{ role: string; content: string }>
   >([]);
 
@@ -62,17 +63,20 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
   useEffect(() => {
     if (status === "submitted") {
       toast.loading("Analyzing context...", { id: "code-loading" });
-    
     } else if (
-        // @ts-ignore
+      // @ts-ignore
       status !== "submitted" &&
       status !== "error" &&
       status === "streaming"
     ) {
       toast.dismiss("code-loading");
       toast.loading("Executing...", { id: "code-generation" });
+    } else if (
+      status === "ready" &&
       // @ts-ignore
-    } else if (status === "ready" && status !== "submitted" && messages.length > 0) {
+      status !== "submitted" &&
+      messages.length > 0
+    ) {
       toast.dismiss("code-loading");
       toast.dismiss("code-generation");
       toast.success("Execution Successfull.");
@@ -102,6 +106,99 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
       setDetectedUrl(null);
     }
   }, [input]);
+
+  const handleUrlCode = async () => {
+    if (!detectedUrl) return;
+
+    setIsScrapingUrl(true); // for loading part...
+    try {
+      setUrlCodeMessages((prev) => [
+        ...prev,
+        {
+          role: "user",
+          content: `Recreate this website: ${detectedUrl}`,
+        },
+      ]);
+      toast.loading("Processing website...", { id: "scrape" });
+
+      const response = await fetch("/api/scrape-generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: detectedUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to process website");
+      }
+
+      toast.dismiss("scrape");
+      toast.loading("Generating code...", { id: "code-generation" });
+
+      // Stream the response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+      let lastCodeLength = 0;
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          accumulatedText += chunk;
+
+          // Extract HTML code
+          const match = accumulatedText.match(/```html\n([\s\S]*?)(```|$)/);
+          if (match && match[1]) {
+            const codeLength = match[1].length;
+            if (codeLength > lastCodeLength) {
+              setGeneratedCode(match[1]);
+              lastCodeLength = codeLength;
+            }
+          }
+        }
+      }
+
+      // Add success message
+      if (lastCodeLength > 0) {
+        setUrlCodeMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `✅ I've analyzed ${detectedUrl} and generated ${lastCodeLength} characters of pixel-perfect HTML/Tailwind code. The recreation is now displaying in the preview panel.\n\n• View live preview\n• Edit by clicking elements\n• Download as React\n• Copy code\n• Save design`,
+          },
+        ]);
+        toast.success("Website recreated!");
+      } else {
+        toast.error("⚠️ No code generated");
+      }
+
+      setInput("");
+      setDetectedUrl(null);
+    } catch (error) {
+      console.error("💥 Error:", error);
+      toast.error("Failed to process website");
+      toast.dismiss("code-generation");
+
+      setUrlCodeMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `❌ Failed: ${error?.message}`,
+        },
+      ]);
+    } finally {
+      setIsScrapingUrl(false);
+      toast.dismiss("code-generation");
+      toast.dismiss("scrape");
+    }
+  };
 
   // CODE EXTRACTION-------------------------------------
   useEffect(() => {
@@ -207,6 +304,13 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                     </span>
                   </div>
                 )}
+
+                {isScrapingUrl && (
+                  <div className="flex items-center gap-2 text-blue-600 text-sm animate-pulse">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <p>Backend processing website...</p>
+                  </div>
+                )}
               </>
             )}
           </ConversationContent>
@@ -225,7 +329,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
             </div>
             <Button
               size="sm"
-              // onClick={handleScrapeUrl}
+              onClick={handleUrlCode}
               disabled={isScrapingUrl}
               className="bg-blue-500 hover:bg-blue-600 text-white text-xs cursor-pointer"
             >
