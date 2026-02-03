@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  LinkIcon,
+  Loader,
   LucideBot,
   LucideBrain,
   LucideLoader,
@@ -39,6 +41,13 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
   const [input, setInput] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
 
+  // SCRAPING
+  const [isScrapingUrl, setIsScrapingUrl] = useState(false);
+  const [detectedUrl, setDetectedUrl] = useState<string | null>(null);
+  const [visionMessages, setVisionMessages] = useState<
+    Array<{ role: string; content: string }>
+  >([]);
+
   // AI calling sdk6
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
@@ -46,7 +55,25 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
     }),
   });
 
+
+  const { messages:scrapeMessages, sendMessage:scrapeSendMessage, status:scrapeStatus, setMessages:scrapeSetMessages } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/scrape-generate",
+    }),
+  });
+
   console.log("messages in client side", messages);
+
+  // DETECT URL IN INPUT-------------------------------------
+  useEffect(() => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const match = input.match(urlRegex);
+    if (match && match[0]) {
+      setDetectedUrl(match[0]);
+    } else {
+      setDetectedUrl(null);
+    }
+  }, [input]);
 
   // CODE EXTRACTION-------------------------------------
   useEffect(() => {
@@ -159,19 +186,45 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
       </div>
       {/* INPUT AREA */}
       <div className="relative mt-auto border-t border-border px-3 py-3">
-        <div className="flex gap-2 w-full mb-2 overflow-x-auto scrollbar-hide">
-          {Suggestions.map((suggestion, index) => (
+        {detectedUrl ? (
+          <div className="mb-2 p-1 bg-blue-50 dark:bg-gray-200 border border-blue-200 rounded-md flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-blue-700">
+              <LinkIcon className="w-4 h-4" />
+              <span className="font-medium">URL:</span>
+              <span className="truncate max-w-[180px] text-sm text-muted-foreground dark:text-black">{detectedUrl}</span>
+            </div>
             <Button
-              key={index}
-              className="cursor-pointer text-[10px] p-2! rounded-full"
               size="sm"
-              variant="outline"
-              onClick={() => setInput(suggestion)}
+              // onClick={handleScrapeUrl}
+              disabled={isScrapingUrl}
+              className="bg-blue-500 hover:bg-blue-600 text-white text-xs cursor-pointer"
             >
-              {suggestion}
+              {isScrapingUrl ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin mr-2" />
+                  Processing...
+                </>
+              ) : (
+                "Recreate"
+              )}
             </Button>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="flex gap-2 w-full mb-2 overflow-x-auto scrollbar-hide">
+            {Suggestions.map((suggestion, index) => (
+              <Button
+                key={index}
+                className="cursor-pointer text-[10px] p-2! rounded-full"
+                size="sm"
+                variant="outline"
+                onClick={() => setInput(suggestion)}
+              >
+                {suggestion}
+              </Button>
+            ))}
+          </div>
+        )}
+
         <Textarea
           className="resize-none h-18 p-1 bg-primary-foreground focus:outline-none focus:ring-0 shadow-sm"
           placeholder="Create  saas landing page..."
