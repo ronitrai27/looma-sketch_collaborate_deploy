@@ -24,6 +24,7 @@ import {
 } from "@/components/ai-elements/message";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   onCodeChange?: (code: string) => void;
@@ -48,21 +49,51 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
     Array<{ role: string; content: string }>
   >([]);
 
-  // AI calling sdk6
+  // AI SDK hooks
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/generate",
     }),
   });
 
-
-  const { messages:scrapeMessages, sendMessage:scrapeSendMessage, status:scrapeStatus, setMessages:scrapeSetMessages } = useChat({
+  const {
+    messages: scrapeMessages,
+    sendMessage: scrapeSendMessage,
+    status: scrapeStatus,
+    setMessages: scrapeSetMessages,
+  } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/scrape-generate",
     }),
   });
 
-  console.log("messages in client side", messages);
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
+    sendMessage({
+      parts: [{ type: "text", text: input }],
+    });
+    setInput("");
+    setDetectedUrl(null);
+    toast.success("Message sent successfully");
+  };
+
+  const handleSendScrapeMessage = async () => {
+    if (!detectedUrl) return;
+    toast.info("Starting scrape process. This may take a minute...");
+    scrapeSendMessage(
+      {
+        role: "user",
+        parts: [{ type: "text", text: "Recreating the website from URL..." }],
+      },
+      {
+        body: {
+          url: detectedUrl,
+        },
+      }
+    );
+    setInput("");
+    setDetectedUrl(null);
+  };
 
   // DETECT URL IN INPUT-------------------------------------
   useEffect(() => {
@@ -77,22 +108,38 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
 
   // CODE EXTRACTION-------------------------------------
   useEffect(() => {
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === "assistant" && lastMessage.parts) {
-        const fullText = lastMessage.parts
-          .filter((p) => p.type === "text")
-          .map((p: any) => p.text)
-          .join("");
+    const allMsgs = [...messages, ...scrapeMessages];
+    if (allMsgs.length > 0) {
+      const lastMessage = allMsgs[allMsgs.length - 1];
+      
+      if (lastMessage.role === "assistant") {
+        let fullText = "";
+        
+        // Try content first (Vercel AI SDK text streams)
+        if ((lastMessage as any).content) {
+            fullText = (lastMessage as any).content;
+        } 
+        // Then try parts (Vercel AI SDK UI message streams)
+        else if (lastMessage.parts) {
+            fullText = lastMessage.parts
+                .filter((p) => p.type === "text")
+                .map((p: any) => p.text)
+                .join("");
+        }
 
-        // Extract code part
-        const match = fullText.match(/```html\n([\s\S]*?)(```|$)/);
-        if (match && match[1]) {
-          setGeneratedCode(match[1]);
+        if (fullText) {
+            const match = fullText.match(/```html\n([\s\S]*?)(```|$)/);
+            if (match && match[1]) {
+              console.log("💎 Code extracted successfully (length):", match[1].length);
+              setGeneratedCode(match[1]);
+            } else {
+              // Log snippet if no match found but text exists
+              console.log("📝 Assistant message received, but no code block found yet. Text snippet:", fullText.substring(0, 100));
+            }
         }
       }
     }
-  }, [messages]);
+  }, [messages, scrapeMessages]);
 
   // CODE CHANGE HANDLING WITH DEBOUNCE-------------------------------------
   useEffect(() => {
@@ -109,12 +156,34 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
 
   // STATUS CHANGE HANDLING-------------------------------------
   useEffect(() => {
-    if (onStatusChange) {
-      onStatusChange(status);
+    // Handle scrape specific toasts
+    if (scrapeStatus === "submitted") {
+        toast.loading("Analyzing URL & Screenshot...", { id: "scrape-loading" });
+    } else if (scrapeStatus === "streaming") {
+        toast.dismiss("scrape-loading");
+    } else if (scrapeStatus === "ready") {
+        toast.dismiss("scrape-loading");
+    } else if (scrapeStatus === "error") {
+        toast.dismiss("scrape-loading");
+        toast.error("Failed to scrape URL.");
     }
-  }, [status, onStatusChange]);
 
-  console.log("generated code", generatedCode);
+    if (onStatusChange) {
+      if (status === "streaming" || status === "submitted") {
+        onStatusChange(status);
+      } else if (
+        scrapeStatus === "streaming" ||
+        scrapeStatus === "submitted"
+      ) {
+        onStatusChange(scrapeStatus);
+      } else {
+        onStatusChange("ready");
+      }
+    }
+  }, [status, scrapeStatus, onStatusChange]);
+
+  const allMessages = [...messages, ...scrapeMessages];
+  console.log("📊 UI Messages Count:", allMessages.length);
 
   return (
     <div className="flex flex-col h-full">
@@ -125,10 +194,11 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
         </h3>
 
         {/* if message , show clear button to clear message + generated code */}
-        {messages.length > 0 && (
+        {allMessages.length > 0 && (
           <Button
             onClick={() => {
               setMessages([]);
+              scrapeSetMessages([]);
               setGeneratedCode("");
             }}
             className="cursor-pointer text-[10px] p-2!"
@@ -142,7 +212,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
       <div className="flex-1 overflow-y-auto p-2">
         <Conversation>
           <ConversationContent>
-            {messages.length === 0 ? (
+            {allMessages.length === 0 ? (
               <ConversationEmptyState
                 icon={<MessageSquare className="size-12" />}
                 title="Start a conversation"
@@ -150,30 +220,48 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
               />
             ) : (
               <>
-                {messages.map((message) => (
-                  <Message from={message.role} key={message.id}>
+                {allMessages.map((message, idx) => (
+                  <Message from={message.role} key={message.id || idx}>
                     <MessageContent>
-                      {message.parts.map((part, i) => {
-                        switch (part.type) {
-                          case "text":
-                            return (
-                              <MessageResponse key={`${message.id}-${i}`}>
-                                {part.text}
-                              </MessageResponse>
-                            );
-                          default:
-                            return null;
-                        }
-                      })}
+                      {(message as any).content ? (
+                         <MessageResponse>{(message as any).content}</MessageResponse>
+                      ) : message.parts && message.parts.length > 0 ? (
+                        message.parts.map((part, i) => {
+                          switch (part.type) {
+                            case "text":
+                              return (
+                                <MessageResponse key={`${message.id}-${i}`}>
+                                  {part.text}
+                                </MessageResponse>
+                              );
+                            default:
+                              return null;
+                          }
+                        })
+                      ) : (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground italic">
+                           {message.role === 'assistant' ? (
+                             <>
+                               <LucideLoader className="size-3 animate-spin" />
+                               <span>AI is working...</span>
+                             </>
+                           ) : (
+                             'Processing...'
+                           )}
+                        </div>
+                      )}
                     </MessageContent>
                   </Message>
                 ))}
 
-                {(status === "streaming" || status === "submitted") && (
+                {(status === "streaming" ||
+                  status === "submitted" ||
+                  scrapeStatus === "streaming" ||
+                  scrapeStatus === "submitted") && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground py-2 pl-1 animate-in fade-in duration-300">
                     <LucideLoader className="size-3 animate-spin" />
                     <span>
-                      {status === "submitted"
+                      {status === "submitted" || scrapeStatus === "submitted"
                         ? "AI is thinking..."
                         : "AI is typing..."}
                     </span>
@@ -191,11 +279,13 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
             <div className="flex items-center gap-2 text-sm text-blue-700">
               <LinkIcon className="w-4 h-4" />
               <span className="font-medium">URL:</span>
-              <span className="truncate max-w-[180px] text-sm text-muted-foreground dark:text-black">{detectedUrl}</span>
+              <span className="truncate max-w-[180px] text-sm text-muted-foreground dark:text-black">
+                {detectedUrl}
+              </span>
             </div>
             <Button
               size="sm"
-              // onClick={handleScrapeUrl}
+              onClick={handleSendScrapeMessage}
               disabled={isScrapingUrl}
               className="bg-blue-500 hover:bg-blue-600 text-white text-xs cursor-pointer"
             >
@@ -234,10 +324,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
           }}
           onKeyDown={async (event) => {
             if (event.key === "Enter") {
-              sendMessage({
-                parts: [{ type: "text", text: input }],
-              });
-              setInput("");
+             handleSendMessage();
             }
           }}
         />
@@ -245,6 +332,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
           className="cursor-pointer text-xs absolute bottom-6 right-5"
           size="icon-sm"
           variant="default"
+          onClick={handleSendMessage}
         >
           <LucideBrain />
         </Button>
