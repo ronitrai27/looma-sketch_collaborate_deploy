@@ -55,13 +55,6 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
     }),
   });
 
-
-  const { messages:scrapeMessages, sendMessage:scrapeSendMessage, status:scrapeStatus, setMessages:scrapeSetMessages } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/scrape-generate",
-    }),
-  });
-
   console.log("messages in client side", messages);
 
   // DETECT URL IN INPUT-------------------------------------
