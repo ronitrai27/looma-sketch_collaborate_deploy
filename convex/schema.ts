@@ -71,19 +71,4 @@ export default defineSchema({
   })
     .index("by_project", ["projectId"])
     .index("by_updated_by", ["updatedBy"]),
-
-  // Figma imports table
-  // IGNORE THIS FOR NOW ~
-  figmaImports: defineTable({
-    projectId: v.id("projects"),
-    fileKey: v.string(),
-    fileName: v.string(),
-    fileUrl: v.string(),
-    lastModified: v.string(),
-    thumbnailUrl: v.optional(v.string()),
-    importedAt: v.number(),
-    importedBy: v.id("users"),
-  })
-    .index("by_project", ["projectId"])
-    .index("by_file_key", ["fileKey"]),
 });

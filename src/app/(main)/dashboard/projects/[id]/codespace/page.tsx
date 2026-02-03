@@ -7,6 +7,7 @@ import Link from "next/link";
 import React from "react";
 import { api } from "../../../../../../../convex/_generated/api";
 import { Id } from "../../../../../../../convex/_generated/dataModel";
+import { Spinner } from "@/components/ui/spinner";
 
 const CodespacePage = () => {
   const param = useParams();
@@ -35,7 +36,7 @@ const CodespacePage = () => {
       </div>
       {allCodes === undefined ? (
         <div className="flex items-center justify-center p-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+         <Spinner className="size-10"/>
         </div>
       ) : allCodes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">

@@ -16,6 +16,7 @@ import {
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import StyleGuidePreview from "./styleGuidePreview";
 
 interface WebDesignPreviewProps {
   onToggleTools: () => void;
@@ -106,7 +107,8 @@ ${displayCode}
       if (selectedEl) return;
       const target = e.target as HTMLElement;
       if (target === doc.body || target === doc.documentElement) return;
-      if (hoverEl && hoverEl !== target) hoverEl.classList.remove("hover-outline");
+      if (hoverEl && hoverEl !== target)
+        hoverEl.classList.remove("hover-outline");
       hoverEl = target;
       hoverEl.classList.add("hover-outline");
     };
@@ -205,9 +207,8 @@ ${displayCode}
           >
             Design <LucidePaintbrush />
           </Button>
-          <Button variant={"outline"} size="sm" className="text-xs cursor-pointer">
-            Style Guide <LucidePaintBucket />
-          </Button>
+
+          <StyleGuidePreview />
         </div>
         <div className="flex items-center gap-4">
           <Button className="cursor-pointer text-xs" size="sm">
