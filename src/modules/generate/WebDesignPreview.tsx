@@ -145,6 +145,7 @@ ${displayCode}
     };
 
     const applyLayer = () => {
+      if (!doc || !doc.body) return;
       if (mode === "design") {
         doc.body.addEventListener("mouseover", handleMouseOver);
         doc.body.addEventListener("mouseout", handleMouseOut);
@@ -167,12 +168,18 @@ ${displayCode}
     iframe.addEventListener("load", onIframeLoad);
 
     return () => {
-      doc.body.removeEventListener("mouseover", handleMouseOver);
-      doc.body.removeEventListener("mouseout", handleMouseOut);
-      doc.body.removeEventListener("click", handleClick);
-      doc.removeEventListener("keydown", handleKeyDown);
-      iframe.removeEventListener("load", onIframeLoad);
-      cleanupSelections(doc);
+      if (doc && doc.body) {
+        doc.body.removeEventListener("mouseover", handleMouseOver);
+        doc.body.removeEventListener("mouseout", handleMouseOut);
+        doc.body.removeEventListener("click", handleClick);
+      }
+      if (doc) {
+        doc.removeEventListener("keydown", handleKeyDown);
+        cleanupSelections(doc);
+      }
+      if (iframe) {
+        iframe.removeEventListener("load", onIframeLoad);
+      }
       setSelectedElement(null);
     };
   }, [displayCode, mode]);
