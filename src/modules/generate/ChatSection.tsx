@@ -225,7 +225,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
     if (onCodeChange && generatedCode) {
       const handler = setTimeout(() => {
         onCodeChange(generatedCode);
-      }, 200);
+      }, 150);
 
       return () => {
         clearTimeout(handler);

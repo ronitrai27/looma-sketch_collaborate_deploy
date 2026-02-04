@@ -60,7 +60,6 @@ export default defineSchema({
   }).index("by_user", ["userId"]),
 
   // CODESPACE TABLE LINKED TO PROJECT.
-  // This table will contain all generated code for the project.
   codespaces: defineTable({
     projectId: v.id("projects"),
     createdBy: v.id("users"),
@@ -69,6 +68,7 @@ export default defineSchema({
     codespaceDescription: v.optional(v.string()),
     code: v.optional(v.string()),
     messageHistory: v.optional(v.array(v.any())),
+    // codespaceTeamTags: v.optional(v.array(v.string())), // Future addition.
     updatedAt: v.number(),
     createdAt: v.number(),
   })

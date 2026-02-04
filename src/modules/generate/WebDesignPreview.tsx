@@ -20,6 +20,11 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import StyleGuidePreview from "./styleGuidePreview";
+import CodeExporting from "./CodeExporting";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { LabelList } from "recharts";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface WebDesignPreviewProps {
   onToggleTools: () => void;
@@ -77,15 +82,11 @@ const WebDesignPreview = ({
   const [mode, setMode] = useState<"preview" | "design">("preview");
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // RENDERING CODE ON IFRAME WITH DEBOUNCE-----------------------
+  // RENDERING CODE ON IFRAME-----------------------
   useEffect(() => {
     if (designCode) {
-      setIsLoading(true);
-      const timeout = setTimeout(() => {
-        setDisplayCode(designCode);
-        setIsLoading(false);
-      }, 300);
-      return () => clearTimeout(timeout);
+      setDisplayCode(designCode);
+      setIsLoading(false);
     }
   }, [designCode]);
 
@@ -225,9 +226,28 @@ const WebDesignPreview = ({
         </div>
 
         <div className="flex items-center gap-4">
+          {/* SAVING CODE */}
+         
+          <Popover>
+          <PopoverTrigger asChild>
           <Button className="cursor-pointer text-xs" size="sm">
             Save <LucideCode2 />
           </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 overflow-x-auto p-2!">
+          <div>
+            <h1 className="text-sm font-medium">Save the code to your project <LucideCode2 className="inline h-4 w-4 ml-1 -mt-0.5"/></h1>
+            <div className="flex-col flex space-y-1.5 mt-4 p-2 bg-primary-foreground border rounded">
+              <Label className="text-xs">Codespace Name</Label>
+              <Input placeholder="eg: login v1" className="focus:outline-none border-border" />
+
+               <Label className="text-xs">Codespace Description</Label>
+              <Input placeholder="eg: Login page for v1" className="focus:outline-none border-border" />
+            </div>
+          </div>
+          </PopoverContent>
+          </Popover>
+         
           <Button
             size="sm"
             variant={"outline"}
@@ -255,19 +275,22 @@ const WebDesignPreview = ({
       </div>
       {/* design preview */}
       <div className={`w-full h-full p-2 flex-1 bg-primary-foreground`}>
-        {displayCode.length === 0 && !isLoading && (
+        {displayCode.length === 0 && designCode.length === 0 && !isLoading && (
           <div className="w-full h-full flex flex-col items-center justify-center relative">
+            <div className="p-2 border rounded-full flex items-center justify-center shadow">
+              <h1 className="text-lg font-medium text-muted-foreground ">
+                Start <span className="text-blue-500">Designing</span>, Start{" "}
+                <span className="text-blue-500">Editing</span>{" "}
+                <LucidePen className="inline ml-2 -mt-1" size={16} />
+              </h1>
+            </div>
             <Image
               src="/gen.png"
               alt="empty state"
               width={400}
               height={400}
-              className="opacity-40"
+              className="opacity-60 -mt-10"
             />
-            <h1 className="text-2xl font-semibold text-muted-foreground -mt-4">
-              Start Designing, Start Editing{" "}
-              <LucidePen className="inline ml-2 -mt-1" size={24} />
-            </h1>
           </div>
         )}
         {/* Iframe preview */}
@@ -344,16 +367,7 @@ const WebDesignPreview = ({
           >
             Publish <LucideGlobe />
           </Button>
-          <Button
-            disabled={displayCode.length === 0}
-            variant="default"
-            size="sm"
-            className="cursor-pointer px-6!"
-          >
-            Export as React/Vue.js{" "}
-            <Image src="/atom.png" alt="react" width={20} height={20} />
-            <Image src="/vue.png" alt="vue" width={20} height={20} />
-          </Button>
+          <CodeExporting displayCode={designCode} />
         </div>
       </div>
     </div>

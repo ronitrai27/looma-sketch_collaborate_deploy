@@ -38,6 +38,7 @@ const GeneratePage = () => {
     <div className="h-[calc(100vh-64px)] w-full border-t border-border">
       <Allotment>
         <Allotment.Pane
+          snap
           minSize={MIN_AI_WIDTH}
           maxSize={MAX_AI_WIDTH}
           preferredSize={300}
