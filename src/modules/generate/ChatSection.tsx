@@ -191,7 +191,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
         ...prev,
         {
           role: "assistant",
-          content: `❌ Failed: ${error?.message}`,
+          content: `❌ Failed: ${error}`,
         },
       ]);
     } finally {

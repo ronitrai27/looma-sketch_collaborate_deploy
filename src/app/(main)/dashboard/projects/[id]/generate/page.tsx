@@ -4,6 +4,7 @@ import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import ChatSection from "@/modules/generate/ChatSection";
 import WebDesignPreview from "@/modules/generate/WebDesignPreview";
+import ElementSetting from "@/modules/generate/ElementSetting";
 
 const MIN_AI_WIDTH = 250;
 const MAX_AI_WIDTH = 400;
@@ -28,6 +29,11 @@ const GeneratePage = () => {
     setIsReady(status !== "streaming" && status !== "submitted");
   }, []);
 
+  const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
+    null,
+  );
+
+
   return (
     <div className="h-[calc(100vh-64px)] w-full border-t border-border">
       <Allotment>
@@ -50,6 +56,8 @@ const GeneratePage = () => {
               onToggleTools={() => setShowTools(!showTools)}
               showTools={showTools}
               designCode={currentCode}
+              selectedElement={selectedElement}
+              setSelectedElement={setSelectedElement}
             />
           </div>
         </Allotment.Pane>
@@ -60,7 +68,12 @@ const GeneratePage = () => {
           maxSize={MAX_DESIGN_PREVIEW_WIDTH}
           preferredSize={300}
         >
-          <div className="w-full h-full bg-muted/30 border-l border-border"></div>
+          <div className="w-full h-full bg-muted/30 border-l border-border">
+            <ElementSetting
+              selectedElement={selectedElement}
+              clearSelection={() => setSelectedElement(null)}
+            />
+          </div>
         </Allotment.Pane>
       </Allotment>
     </div>

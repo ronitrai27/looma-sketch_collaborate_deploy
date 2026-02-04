@@ -9,6 +9,7 @@ import {
   LucideMonitor,
   LucidePaintBucket,
   LucidePaintbrush,
+  LucidePen,
   LucidePhone,
   LucideTablet,
   LucideTabletSmartphone,
@@ -23,6 +24,8 @@ interface WebDesignPreviewProps {
   onToggleTools: () => void;
   showTools: boolean;
   designCode: string;
+  selectedElement: HTMLElement | null;
+  setSelectedElement: (element: HTMLElement | null) => void;
 }
 
 const getShell = (code: string, isDesign: boolean = false) => `
@@ -62,6 +65,8 @@ const WebDesignPreview = ({
   onToggleTools,
   showTools,
   designCode,
+  selectedElement,
+  setSelectedElement,
 }: WebDesignPreviewProps) => {
   const [displayCode, setDisplayCode] = useState("");
   const [selectedScreen, setSelectedScreen] = useState<
@@ -71,9 +76,9 @@ const WebDesignPreview = ({
   const [mode, setMode] = useState<"preview" | "design">("preview");
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
-    null,
-  );
+  // const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
+  //   null,
+  // );
 
   // RENDERING CODE ON IFRAME WITH DEBOUNCE-----------------------
   useEffect(() => {
@@ -240,8 +245,9 @@ const WebDesignPreview = ({
       {/* design preview */}
       <div className={`w-full h-full p-2 flex-1 bg-primary-foreground`}>
         {displayCode.length === 0 && !isLoading && (
-          <div className="w-full h-full flex items-center justify-center">
-            <p>No design yet</p>
+          <div className="w-full h-full flex flex-col items-center justify-center relative">
+           <Image src="/gen.png" alt="empty state" width={400} height={400} className="opacity-40" />
+          <h1 className="text-2xl font-semibold text-muted-foreground -mt-4">Start Designing, Start Editing <LucidePen className="inline ml-2 -mt-1" size={24} /></h1>
           </div>
         )}
         {/* Iframe preview */}
