@@ -23,6 +23,8 @@ import {
   X,
   Hash,
   Box,
+  LucidePaintBucket,
+  LucidePaintbrush,
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Separator } from "@/components/ui/separator";
@@ -138,7 +140,8 @@ const ElementSetting = ({ selectedElement, clearSelection }: Props) => {
     return (
       <div className="w-80 border-l bg-white h-full flex items-center justify-center p-6 text-center">
         <div className="space-y-2">
-          <Type className="w-8 h-8 mx-auto text-neutral-300" />
+          <Type className="w-12 h-12 mx-auto text-neutral-300" />
+          <h2 className="text-base font-semibold capitalize">Select Design mode <LucidePaintbrush className="inline ml-2 -mt-1" size={24} /></h2>
           <p className="text-sm text-neutral-500 font-medium">
             Select an element on the canvas to edit its properties
           </p>

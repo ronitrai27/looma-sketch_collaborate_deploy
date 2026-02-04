@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import {
+  ExternalLink,
   LucideCode2,
   LucideDownload,
   LucideExternalLink,
@@ -75,10 +76,6 @@ const WebDesignPreview = ({
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<"preview" | "design">("preview");
   const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  // const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
-  //   null,
-  // );
 
   // RENDERING CODE ON IFRAME WITH DEBOUNCE-----------------------
   useEffect(() => {
@@ -226,9 +223,23 @@ const WebDesignPreview = ({
 
           <StyleGuidePreview />
         </div>
+
         <div className="flex items-center gap-4">
           <Button className="cursor-pointer text-xs" size="sm">
             Save <LucideCode2 />
+          </Button>
+          <Button
+            size="sm"
+            variant={"outline"}
+            className="text-xs cursor-pointer"
+            onClick={() => {
+              const publishHtml = getShell(designCode, false);
+              const blob = new Blob([publishHtml], { type: "text/html" });
+              const url = URL.createObjectURL(blob);
+              window.open(url, "_blank");
+            }}
+          >
+            View <ExternalLink />
           </Button>
           <Button
             className={`cursor-pointer text-xs transition-all duration-300 ${
@@ -246,8 +257,17 @@ const WebDesignPreview = ({
       <div className={`w-full h-full p-2 flex-1 bg-primary-foreground`}>
         {displayCode.length === 0 && !isLoading && (
           <div className="w-full h-full flex flex-col items-center justify-center relative">
-           <Image src="/gen.png" alt="empty state" width={400} height={400} className="opacity-40" />
-          <h1 className="text-2xl font-semibold text-muted-foreground -mt-4">Start Designing, Start Editing <LucidePen className="inline ml-2 -mt-1" size={24} /></h1>
+            <Image
+              src="/gen.png"
+              alt="empty state"
+              width={400}
+              height={400}
+              className="opacity-40"
+            />
+            <h1 className="text-2xl font-semibold text-muted-foreground -mt-4">
+              Start Designing, Start Editing{" "}
+              <LucidePen className="inline ml-2 -mt-1" size={24} />
+            </h1>
           </div>
         )}
         {/* Iframe preview */}
@@ -321,18 +341,18 @@ const WebDesignPreview = ({
             variant="default"
             size="sm"
             className="cursor-pointer bg-blue-500 text-white hover:bg-blue-600"
-            onClick={() => {
-              const publishHtml = getShell(designCode, false);
-              const blob = new Blob([publishHtml], { type: "text/html" });
-              const url = URL.createObjectURL(blob);
-              window.open(url, "_blank");
-            }}
           >
             Publish <LucideGlobe />
           </Button>
-          <Button variant="default" size="sm" className="cursor-pointer px-6!">
-            Download in React{" "}
+          <Button
+            disabled={displayCode.length === 0}
+            variant="default"
+            size="sm"
+            className="cursor-pointer px-6!"
+          >
+            Export as React/Vue.js{" "}
             <Image src="/atom.png" alt="react" width={20} height={20} />
+            <Image src="/vue.png" alt="vue" width={20} height={20} />
           </Button>
         </div>
       </div>

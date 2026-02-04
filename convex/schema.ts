@@ -63,12 +63,16 @@ export default defineSchema({
   // This table will contain all generated code for the project.
   codespaces: defineTable({
     projectId: v.id("projects"),
+    createdBy: v.id("users"),
     updatedBy: v.optional(v.id("users")),
     codespaceName: v.optional(v.string()),
+    codespaceDescription: v.optional(v.string()),
     code: v.optional(v.string()),
+    messageHistory: v.optional(v.array(v.any())),
     updatedAt: v.number(),
     createdAt: v.number(),
   })
     .index("by_project", ["projectId"])
-    .index("by_updated_by", ["updatedBy"]),
+    .index("by_updated_by", ["updatedBy"])
+    .index("by_created_by", ["createdBy"]),
 });
