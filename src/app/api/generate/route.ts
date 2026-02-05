@@ -1,11 +1,43 @@
 import { NextRequest } from "next/server";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
+import { scrapeTool } from "firecrawl-aisdk";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import {
+  type InferUITools,
+  type ToolSet,
+  type UIDataTypes,
+  stepCountIs,
+  tool,
+} from "ai";
+import { z } from "zod";
+
+const tools = {
+  // to search web using firecrawl to get to know about design or some ui/ux
+  searchWeb: tool({
+    description: "search the web for UI information",
+    inputSchema: z.object({}),
+    execute: async () => {
+      // call fire crawl here ! to search web or crawl sites. like dribble.
+    },
+  }),
+  getStyleDoc: tool({
+    description:
+      "Read style.md doc to understand about styling. and use it in your response.",
+    inputSchema: z.object({}),
+    execute: async () => {
+      // read style.md file and return its content.
+    },
+  }),
+} satisfies ToolSet;
+
+export type ChatTools = InferUITools<typeof tools>;
+
+export type ChatMessage = UIMessage<never, UIDataTypes, ChatTools>;
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages }: { messages: UIMessage[] } = await req.json();
+    const { messages }: { messages: ChatMessage[] } = await req.json();
     console.log("messages recieved from client", messages);
 
     // gemini-3-pro-preview
@@ -81,6 +113,8 @@ Use as appropriate:
 **User**: "Build a responsive landing page"  
 **Response**: [Generate complete HTML in code block]`,
       messages: await convertToModelMessages(messages),
+      stopWhen: stepCountIs(5),
+      tools,
     });
 
     return result.toUIMessageStreamResponse();
