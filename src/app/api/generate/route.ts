@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import { scrapeTool } from "firecrawl-aisdk";
+import fs from "fs";
+import path from "path";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import {
   type InferUITools,
@@ -13,22 +15,64 @@ import {
 import { z } from "zod";
 
 const tools = {
-  // to search web using firecrawl to get to know about design or some ui/ux
   searchWeb: tool({
-    description: "search the web for UI information",
-    inputSchema: z.object({}),
-    execute: async () => {
-      // call fire crawl here ! to search web or crawl sites. like dribble.
-    },
-  }),
-  getStyleDoc: tool({
     description:
-      "Read style.md doc to understand about styling. and use it in your response.",
-    inputSchema: z.object({}),
-    execute: async () => {
-      // read style.md file and return its content.
+      "Search the web for UI/UX inspiration and design trends or crawl a specific URL.",
+    // @ts-ignore
+    inputSchema: z.object({
+      query: z.string().describe("The search query or URL to crawl"),
+      mode: z.enum(["search", "scrape"]).optional().default("search"),
+    }),
+    needsApproval: true,
+    // @ts-ignore
+    execute: async ({ query, mode }: { query: string; mode: string }) => {
+      const apiKey = process.env.FIRECRAWL_API_KEY;
+      if (!apiKey) throw new Error("FIRECRAWL_API_KEY is not set");
+      const baseUrl = "https://api.firecrawl.dev/v0";
+      if (mode === "scrape" || query.startsWith("http")) {
+        // Use scrape
+        const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({ url: query }),
+        });
+        const data = await res.json();
+        console.log("data from firecrawl", data);
+        // @ts-ignore
+        return data.data?.content || data.data?.markdown || "No content found";
+      } else {
+        // Use search
+        const res = await fetch("https://api.firecrawl.dev/v1/search", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({ query: query }),
+        });
+        const data = await res.json();
+        console.log("data from firecrawl (SEARCH PART)", data);
+        // @ts-ignore
+        return JSON.stringify(data.data || []);
+      }
     },
   }),
+  // getStyleDoc: tool({
+  //   description:
+  //     "Read style.md doc to understand about styling. and use it in your response.",
+  //   inputSchema: z.object({}),
+  //   execute: async () => {
+  //     const filePath = path.join(process.cwd(), "docs/style.md");
+  //     try {
+  //       return fs.readFileSync(filePath, "utf-8");
+  //     } catch (error) {
+  //       return "Style documentation not found.";
+  //     }
+  //   },
+  // }),
 } satisfies ToolSet;
 
 export type ChatTools = InferUITools<typeof tools>;
@@ -44,7 +88,8 @@ export async function POST(req: NextRequest) {
     const result = streamText({
       model: google("gemini-3-flash-preview"),
       system: `You are an expert web developer and UI/UX designer specializing in modern, responsive UI design using Tailwind CSS and Flowbite components. You always design very high quality and professional looking sites/components just like a real modern saas app.
-
+      You are given with searchWeb powerful tool to search web and get design inspiration for user requirements.
+      Its important to use searchWeb tool , to search or crawl for more info about design and user requirements. eg. if user want to design a saas app for e-commerce, then use searchWeb tool to search web and get design inspiration for e-commerce saas app.
 ## Response Modes
 
 **CODE MODE** - Generate HTML for:
@@ -72,8 +117,6 @@ export async function POST(req: NextRequest) {
     - Primary: blue-600 (e.g., for buttons, links)
     - Secondary: gray-500 (e.g., for subtext, borders)
     - Accent: indigo-500 (e.g., for highlights, special icons)
-    - Background: white or gray-50
-    - Text: gray-900
 - **Responsive**: Mobile-first, works on all screen sizes
 - **Spacing**: Proper padding (p-4, p-6, p-8) and margins (m-4, m-6, m-8)
 - **Typography**: Clear hierarchy using Tailwind text utilities
@@ -90,11 +133,9 @@ Use as appropriate:
 - Tippy.js (tooltips)
 
 ### Images
-
 - Light mode: https://community.softr.io/uploads/db9110/original/2X/7/74e6e7e382d0ff5d7773ca9a87e6f6f8817a68a6.jpeg
 - Dark mode: https://www.cibaky.com/wp-content/uploads/2015/12/placeholder-3.jpg
 - Always add descriptive alt text
-
 
 ### Best Practices
 - Semantic HTML5 elements
@@ -104,7 +145,6 @@ Use as appropriate:
 - Keyboard-accessible interactive elements
 
 ---
-
 ## Examples
 
 **User**: "Hi"  

@@ -8,11 +8,17 @@ import {
   LucideBrain,
   LucideExternalLink,
   LucideLoader,
+  LucideToolbox,
   MessageSquare,
+  ToolCase,
   X,
 } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+} from "ai";
 import {
   Conversation,
   ConversationContent,
@@ -25,8 +31,19 @@ import {
   MessageResponse,
 } from "@/components/ai-elements/message";
 
+import {
+  Confirmation,
+  ConfirmationRequest,
+  ConfirmationAccepted,
+  ConfirmationRejected,
+  ConfirmationActions,
+  ConfirmationAction,
+} from "@/components/ai-elements/confirmation";
+import { CheckIcon, XIcon } from "lucide-react";
+
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { type ToolApprovalResponse } from "ai";
 
 type Props = {
   onCodeChange?: (code: string) => void;
@@ -52,11 +69,30 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
   >([]);
 
   // AI calling sdk6
-  const { messages, sendMessage, status, setMessages } = useChat({
+  const {
+    messages,
+    sendMessage,
+    status,
+    setMessages,
+    addToolApprovalResponse,
+    // addToolResult,
+  } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/generate",
     }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
   });
+
+  const handleApproveTool = (id: string) => {
+    addToolApprovalResponse({ id, approved: true });
+  };
+
+  const handleRejectTool = (id: string) => {
+    addToolApprovalResponse({ id, approved: false });
+    sendMessage({
+      parts: [{ type: "text", text: "No, don't use this tool." }],
+    });
+  };
 
   console.log("messages in client side", messages);
 
@@ -281,10 +317,12 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                     <div className="p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <LinkIcon className="w-4 h-4" />
-                        <span className="font-semibold text-sm">Website Recreation Request</span>
+                        <span className="font-semibold text-sm">
+                          Website Recreation Request
+                        </span>
                       </div>
                       <p className="text-sm mb-3">{msg.content}</p>
-                      
+
                       {/* Website Preview Iframe */}
                       <div className="bg-white rounded-lg overflow-hidden border-2 border-blue-300 shadow-inner">
                         <div className="bg-gray-100 px-3 py-1.5 flex items-center gap-2 border-b border-gray-200">
@@ -298,7 +336,10 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                           </span>
                         </div>
                         <iframe
-                          src={msg.content.replace("Recreate this website: ", "")}
+                          src={msg.content.replace(
+                            "Recreate this website: ",
+                            "",
+                          )}
                           className="w-full h-48 bg-white"
                           sandbox="allow-same-origin"
                           title="Website Preview"
@@ -308,10 +349,13 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                           }}
                         />
                       </div>
-                      
+
                       {/* View Original Button */}
                       <a
-                        href={msg.content.replace("Recreate this website: ", "")}
+                        href={msg.content.replace(
+                          "Recreate this website: ",
+                          "",
+                        )}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
@@ -335,27 +379,38 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
                         <p className="whitespace-pre-wrap text-sm leading-relaxed">
                           {msg.content}
                         </p>
                       </div>
-                      
+
                       {/* Success Metrics */}
                       {msg.content.includes("characters") && (
                         <div className="mt-4 grid grid-cols-2 gap-2">
                           <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Code Size</p>
-                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                              {msg.content.match(/(\d+)\s+characters/)?.[1] || "0"}
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Code Size
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">characters</p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                              {msg.content.match(/(\d+)\s+characters/)?.[1] ||
+                                "0"}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              characters
+                            </p>
                           </div>
                           <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
-                            <p className="text-lg font-bold text-green-600 dark:text-green-400">✓</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Ready</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Status
+                            </p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                              ✓
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Ready
+                            </p>
                           </div>
                         </div>
                       )}
@@ -380,7 +435,7 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                 {messages.map((message) => (
                   <Message from={message.role} key={message.id}>
                     <MessageContent>
-                      {message.parts.map((part, i) => {
+                      {message.parts?.map((part, i) => {
                         switch (part.type) {
                           case "text":
                             return (
@@ -388,7 +443,56 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                                 {part.text}
                               </MessageResponse>
                             );
+
                           default:
+                            if (part.type === "tool-searchWeb") {
+                              switch (part.state) {
+                                case "approval-requested":
+                                  return (
+                                    <div
+                                      key={part.toolCallId}
+                                    className="p-2 bg-white dark:bg-gray-800 rounded-lg border"
+                                    >
+                                      <p className="text-sm font-medium font-pop mb-2">Requested for Web Tool calling for design recreation.</p>
+                                      <div   className="flex items-center gap-5">
+                                        <Button
+                                          size={"sm"}
+                                          variant={"outline"}
+                                          onClick={() =>
+                                            addToolApprovalResponse({
+                                              id: part.approval.id,
+                                              approved: true,
+                                            })
+                                          }
+                                        >
+                                          Approve
+                                        </Button>
+                                        <Button
+                                          size={"sm"}
+                                          variant={"destructive"}
+                                          onClick={() =>
+                                            addToolApprovalResponse({
+                                              id: part.approval.id,
+                                              approved: false,
+                                            })
+                                          }
+                                        >
+                                          Deny
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  );
+                                case "output-available":
+                                  return (
+                                    <div key={part.toolCallId}>
+                                      <p className="flex items-center gap-2 bg-primary-foreground p-1.5 text-xs italic">
+                                        {" "}
+                                        <ToolCase /> Tool Executed Successfully
+                                      </p>
+                                    </div>
+                                  );
+                              }
+                            }
                             return null;
                         }
                       })}
@@ -425,10 +529,12 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                     <div className="p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <LinkIcon className="w-4 h-4" />
-                        <span className="font-semibold text-sm">Website Recreation Request</span>
+                        <span className="font-semibold text-sm">
+                          Website Recreation Request
+                        </span>
                       </div>
                       <p className="text-sm mb-3">{msg.content}</p>
-                      
+
                       {/* Website Preview Iframe */}
                       <div className="bg-white rounded-lg overflow-hidden border-2 border-blue-300 shadow-inner">
                         <div className="bg-gray-100 px-3 py-1.5 flex items-center gap-2 border-b border-gray-200">
@@ -442,7 +548,10 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                           </span>
                         </div>
                         <iframe
-                          src={msg.content.replace("Recreate this website: ", "")}
+                          src={msg.content.replace(
+                            "Recreate this website: ",
+                            "",
+                          )}
                           className="w-full h-48 bg-white"
                           sandbox="allow-same-origin"
                           title="Website Preview"
@@ -452,10 +561,13 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                           }}
                         />
                       </div>
-                      
+
                       {/* View Original Button */}
                       <a
-                        href={msg.content.replace("Recreate this website: ", "")}
+                        href={msg.content.replace(
+                          "Recreate this website: ",
+                          "",
+                        )}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
@@ -482,27 +594,38 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
                         <p className="whitespace-pre-wrap text-sm leading-relaxed">
                           {msg.content}
                         </p>
                       </div>
-                      
+
                       {/* Success Metrics */}
                       {msg.content.includes("characters") && (
                         <div className="mt-4 grid grid-cols-2 gap-2">
                           <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Code Size</p>
-                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                              {msg.content.match(/(\d+)\s+characters/)?.[1] || "0"}
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Code Size
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">characters</p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                              {msg.content.match(/(\d+)\s+characters/)?.[1] ||
+                                "0"}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              characters
+                            </p>
                           </div>
                           <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-green-200 dark:border-green-700">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
-                            <p className="text-lg font-bold text-green-600 dark:text-green-400">✓</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Ready</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Status
+                            </p>
+                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                              ✓
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              Ready
+                            </p>
                           </div>
                         </div>
                       )}
@@ -530,9 +653,18 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                   Analyzing layout, extracting styles, and generating code...
                 </p>
                 <div className="mt-2 flex gap-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div
+                    className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
                 </div>
               </div>
             </div>
