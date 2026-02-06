@@ -10,4 +10,11 @@ crons.interval(
   internal.presence.cleanupStalePresence
 );
 
+// Reset AI daily counters at midnight UTC
+crons.daily(
+  "reset AI daily counters",
+  { hourUTC: 0, minuteUTC: 0 },
+  internal.ai.cleanup.resetDailyCounters
+);
+
 export default crons;

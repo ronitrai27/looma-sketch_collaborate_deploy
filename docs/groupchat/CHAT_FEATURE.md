@@ -37,6 +37,16 @@ The Looma platform includes a production-ready real-time team chat feature that 
 - **Auto-expiration** - Typing indicators expire after 3 seconds
 - **Debounced updates** - 300ms delay to reduce server load
 
+### ✨ Framer Motion Animations
+
+- **Message entry animations** - Smooth fade-in with stagger effect (50ms delay between messages)
+- **Bouncing typing dots** - Animated dots with spring physics
+- **Reaction animations** - Spring-based pop-in effects for emoji reactions
+- **Presence badge animations** - Green online dots animate with spring physics
+- **Hover/tap effects** - Interactive micro-animations on reactions (1.2x scale on hover)
+- **Sidebar transitions** - Smooth expand/collapse animations (300ms duration)
+- **Accessibility support** - Respects `prefers-reduced-motion` for users who prefer minimal animations
+
 ---
 
 ## Architecture
@@ -151,6 +161,7 @@ All business logic, validation, and data processing occurs on the Convex backend
 
 - Author or project owner authorization
 - Cascade deletes all reactions
+- No confirmation required (instant deletion)
 
 #### Reactions (`convex/reactions.ts`)
 
@@ -230,6 +241,7 @@ All business logic, validation, and data processing occurs on the Convex backend
 2. Click the emoji picker button (smile icon)
 3. Select an emoji from the grid
 4. Click again to remove your reaction
+5. Reactions display as actual emoji symbols (✨, 🚀, etc.) not text names
 
 ### Presence & Typing
 
@@ -297,6 +309,7 @@ All business logic, validation, and data processing occurs on the Convex backend
 
 /src/lib
   emoji-config.ts        # Client-side emoji config
+  animations.ts          # Framer Motion animation variants
 
 /src/app/(main)/dashboard/projects/[id]/group-chat
   page.tsx               # Main chat interface
@@ -356,6 +369,7 @@ All business logic, validation, and data processing occurs on the Convex backend
 - **Backend**: Convex (serverless functions + real-time database)
 - **Authentication**: Clerk
 - **Styling**: Tailwind CSS, shadcn/ui
+- **Animations**: Framer Motion 12.26.2
 - **Real-time**: Convex reactive queries
 - **Type Safety**: End-to-end TypeScript with Convex generated types
 
@@ -377,6 +391,14 @@ All business logic, validation, and data processing occurs on the Convex backend
 
 ---
 
-**Last Updated**: February 6, 2026  
-**Version**: 1.0.0  
+**Last Updated**: February 7, 2026  
+**Version**: 1.1.0  
 **Status**: Production Ready ✅
+
+**Recent Updates (v1.1.0)**:
+
+- ✨ Added Framer Motion animations throughout the chat interface
+- 🎨 Improved emoji reactions to display actual symbols instead of text names
+- ⚡ Removed confirmation dialog for instant message deletion
+- 🎭 Added smooth sidebar expand/collapse animations
+- ♿ Full accessibility support with reduced motion preferences

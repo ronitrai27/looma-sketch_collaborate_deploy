@@ -125,6 +125,15 @@ messages: defineTable({
   timestamp: v.number(),
   isEdited: v.optional(v.boolean()),
   editedAt: v.optional(v.number()),
+  // AI-related fields
+  isAI: v.optional(v.boolean()),
+  aiMetadata: v.optional(v.object({
+    confidenceScore: v.number(),
+    engagementReason: v.string(),
+    contextMessageIds: v.array(v.id("messages")),
+    promptTokens: v.number(),
+    completionTokens: v.number(),
+  })),
 })
   .index("by_project", ["projectId"])
   .index("by_project_timestamp", ["projectId", "timestamp"])
@@ -152,5 +161,37 @@ presence: defineTable({
   .index("by_user_and_project", ["userId", "projectId"])
   .index("by_last_active", ["lastActive"]),
 
+// AI Configuration table - manages AI settings per project
+ai_config: defineTable({
+  projectId: v.id("projects"),
+  enabled: v.boolean(),
+  lastResponseAt: v.optional(v.number()),
+  responsesToday: v.number(),
+  responseFrequency: v.union(
+    v.literal("conservative"),
+    v.literal("moderate"),
+    v.literal("active")
+  ),
+  engagementThreshold: v.number(),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+})
+  .index("by_project", ["projectId"])
+  .index("by_enabled", ["enabled"]),
+
+// AI Analytics table - tracks AI performance metrics
+ai_analytics: defineTable({
+  projectId: v.id("projects"),
+  date: v.string(), // YYYY-MM-DD
+  totalMessages: v.number(),
+  aiResponses: v.number(),
+  averageConfidence: v.number(),
+  engagementReasons: v.object({
+    question: v.number(),
+    technical: v.number(),
+    discussion: v.number(),
+  }),
+})
+  .index("by_project_date", ["projectId", "date"]),
 
 });

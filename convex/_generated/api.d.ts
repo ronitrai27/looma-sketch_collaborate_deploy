@@ -8,6 +8,12 @@
  * @module
  */
 
+import type * as ai_cleanup from "../ai/cleanup.js";
+import type * as ai_config from "../ai/config.js";
+import type * as ai_engine from "../ai/engine.js";
+import type * as ai_monitor from "../ai/monitor.js";
+import type * as ai_systemPrompt from "../ai/systemPrompt.js";
+import type * as ai_triggers from "../ai/triggers.js";
 import type * as crons from "../crons.js";
 import type * as emojiConstants from "../emojiConstants.js";
 import type * as messages from "../messages.js";
@@ -25,6 +31,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "ai/cleanup": typeof ai_cleanup;
+  "ai/config": typeof ai_config;
+  "ai/engine": typeof ai_engine;
+  "ai/monitor": typeof ai_monitor;
+  "ai/systemPrompt": typeof ai_systemPrompt;
+  "ai/triggers": typeof ai_triggers;
   crons: typeof crons;
   emojiConstants: typeof emojiConstants;
   messages: typeof messages;

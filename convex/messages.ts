@@ -1,6 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalQuery } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 
 // SERVER-SIDE QUERY: Get messages for a project with user data enrichment
 export const getMessages = query({
@@ -85,6 +86,54 @@ export const getMessages = query({
   },
 });
 
+// INTERNAL QUERY: Get messages for AI processing (no auth required)
+export const internalGetMessages = internalQuery({
+  args: {
+    projectId: v.id("projects"),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    // No authentication check - this is for internal AI use only
+    const limit = args.limit ?? 50;
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_project_timestamp", (q) =>
+        q.eq("projectId", args.projectId)
+      )
+      .order("desc")
+      .take(limit);
+
+    // Enrich with user data
+    const enrichedMessages = await Promise.all(
+      messages.map(async (message) => {
+        const messageUser = await ctx.db.get(message.userId);
+        
+        const reactions = await ctx.db
+          .query("reactions")
+          .withIndex("by_message", (q) => q.eq("messageId", message._id))
+          .collect();
+
+        const reactionCounts = reactions.reduce((acc, reaction) => {
+          acc[reaction.emoji] = (acc[reaction.emoji] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        return {
+          ...message,
+          user: {
+            _id: messageUser?._id,
+            name: messageUser?.name || "Unknown User",
+            imageUrl: messageUser?.imageUrl,
+          },
+          reactionCounts,
+        };
+      })
+    );
+
+    return enrichedMessages.reverse();
+  },
+});
+
 // SERVER-SIDE MUTATION: Send a message with full validation
 export const sendMessage = mutation({
   args: {
@@ -154,6 +203,12 @@ export const sendMessage = mutation({
       userId: user._id,
       text: sanitizedText,
       timestamp,
+    });
+
+    // Trigger AI processing asynchronously (non-blocking)
+    await ctx.scheduler.runAfter(0, internal.ai.triggers.triggerAIProcessing, {
+      messageId: messageId,
+      projectId: args.projectId,
     });
 
     // Return enriched message

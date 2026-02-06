@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { formatDistanceToNow } from "date-fns";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Bot } from "lucide-react";
 import { useState } from "react";
 import { EmojiPicker } from "@/components/chat/EmojiPicker";
 import {
@@ -31,6 +31,7 @@ interface MessageItemProps {
     timestamp: number;
     isEdited?: boolean;
     editedAt?: number;
+    isAI?: boolean;
     user: {
       _id: Id<"users"> | undefined;
       name: string;
@@ -64,15 +65,18 @@ export function MessageItem({ message }: MessageItemProps) {
   };
 
   const variants = shouldReduceMotion ? messageVariantsReduced : messageVariants;
+  const isAIMessage = message.isAI || false;
 
   return (
     <motion.div
       variants={variants}
       initial="hidden"
       animate="visible"
-      exit="exit"
+     exit="exit"
       layout
-      className="group flex gap-3 hover:bg-muted/50 p-2 rounded-lg transition-colors"
+      className={`group flex gap-3 hover:bg-muted/50 p-2 rounded-lg transition-colors ${
+        isAIMessage ? "bg-blue-50/50 dark:bg-blue-950/20" : ""
+      }`}
     >
       {/* User Avatar */}
       <Avatar className="size-10 flex-shrink-0">
@@ -90,6 +94,12 @@ export function MessageItem({ message }: MessageItemProps) {
           {message.isEdited && (
             <span className="text-xs text-muted-foreground italic">
               (edited)
+            </span>
+          )}
+          {isAIMessage && (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Bot className="h-3 w-3" />
+              AI
             </span>
           )}
         </div>

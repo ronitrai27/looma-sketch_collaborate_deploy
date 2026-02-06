@@ -8,6 +8,7 @@ import { MessageList } from "@/components/chat/MessageList";
 import { MessageComposer } from "@/components/chat/MessageComposer";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { OnlineUsersList } from "@/components/chat/OnlineUsersList";
+import { AIToggleButton } from "@/components/chat/AIToggleButton";
 import { Spinner } from "@/components/ui/spinner";
 import { useEffect } from "react";
 import { MessageSquare } from "lucide-react";
@@ -54,14 +55,17 @@ export default function GroupChatPage() {
     <div className="h-full w-full flex flex-col">
       {/* Header */}
       <div className="border-b px-3 py-2 bg-background">
-        <div className="flex items-center gap-2">
-          <div className="size-7 rounded-lg bg-primary/10 flex items-center justify-center">
-            <MessageSquare className="size-3.5 text-primary" />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="size-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <MessageSquare className="size-3.5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-base font-semibold leading-tight">{project.projectName}</h1>
+              <p className="text-[10px] text-muted-foreground leading-tight">Team Chat</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-base font-semibold leading-tight">{project.projectName}</h1>
-            <p className="text-[10px] text-muted-foreground leading-tight">Team Chat</p>
-          </div>
+          <AIToggleButton projectId={projectId} />
         </div>
       </div>
 
