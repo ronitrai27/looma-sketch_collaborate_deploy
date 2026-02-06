@@ -75,4 +75,82 @@ export default defineSchema({
     .index("by_project", ["projectId"])
     .index("by_updated_by", ["updatedBy"])
     .index("by_created_by", ["createdBy"]),
+
+
+// approve / reject / versioning table
+
+componentVersions: defineTable({
+  projectId: v.id("projects"),
+  componentName: v.string(),
+  componentCode: v.string(),
+  createdBy: v.id("users"),
+  createdAt: v.number(),
+  version: v.number(),
+  isApproved: v.boolean(),
+  approvedBy: v.optional(v.id("users")),
+  approvedAt: v.optional(v.number()),
+  description: v.optional(v.string()),
+})
+  .index("by_component", ["projectId", "componentName"])
+  .index("by_creator", ["createdBy"]),
+
+changeRequests: defineTable({
+  projectId: v.id("projects"),
+  componentName: v.string(),
+  currentVersionId: v.optional(v.id("componentVersions")),
+  proposedVersionId: v.id("componentVersions"),
+  requestedBy: v.id("users"),
+  requestedAt: v.number(),
+  status: v.union(
+    v.literal("pending"),
+    v.literal("approved"),
+    v.literal("rejected")
+  ),
+  reviewedBy: v.optional(v.id("users")),
+  reviewedAt: v.optional(v.number()),
+  reviewComments: v.optional(v.string()),
+  linesAdded: v.number(),
+  linesRemoved: v.number(),
+})
+  .index("by_status", ["projectId", "status"])
+  .index("by_requester", ["requestedBy"]),
+
+// REAL-TIME CHAT TABLES
+
+// Messages table - stores all chat messages for each project
+messages: defineTable({
+  projectId: v.id("projects"),
+  userId: v.id("users"),
+  text: v.string(),
+  timestamp: v.number(),
+  isEdited: v.optional(v.boolean()),
+  editedAt: v.optional(v.number()),
+})
+  .index("by_project", ["projectId"])
+  .index("by_project_timestamp", ["projectId", "timestamp"])
+  .index("by_user", ["userId"]),
+
+// Reactions table - stores emoji reactions to messages
+reactions: defineTable({
+  messageId: v.id("messages"),
+  userId: v.id("users"),
+  emoji: v.string(),
+  timestamp: v.number(),
+})
+  .index("by_message", ["messageId"])
+  .index("by_user_and_message", ["userId", "messageId"]),
+
+// Presence table - tracks online status and typing indicators
+presence: defineTable({
+  userId: v.id("users"),
+  projectId: v.id("projects"),
+  isOnline: v.boolean(),
+  isTyping: v.boolean(),
+  lastActive: v.number(),
+})
+  .index("by_project", ["projectId"])
+  .index("by_user_and_project", ["userId", "projectId"])
+  .index("by_last_active", ["lastActive"]),
+
+
 });

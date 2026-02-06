@@ -8,9 +8,15 @@
  * @module
  */
 
+import type * as crons from "../crons.js";
+import type * as emojiConstants from "../emojiConstants.js";
+import type * as messages from "../messages.js";
+import type * as presence from "../presence.js";
 import type * as projects from "../projects.js";
+import type * as reactions from "../reactions.js";
 import type * as styleGuides from "../styleGuides.js";
 import type * as users from "../users.js";
+import type * as versions from "../versions.js";
 
 import type {
   ApiFromModules,
@@ -19,9 +25,15 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
+  emojiConstants: typeof emojiConstants;
+  messages: typeof messages;
+  presence: typeof presence;
   projects: typeof projects;
+  reactions: typeof reactions;
   styleGuides: typeof styleGuides;
   users: typeof users;
+  versions: typeof versions;
 }>;
 
 /**
