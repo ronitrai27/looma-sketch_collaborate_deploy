@@ -99,7 +99,7 @@ const ProjectPage = () => {
       </div>
 
       {/* AWS PROJECT THUMBNAIL SETUP  1080 x 260 */}
-      <div className="my-5 w-[1080px] h-[260px] bg-gray-200 rounded"></div>
+      <div className="my-5 w-[1080px] h-[260px] mx-auto bg-gray-200 rounded"></div>
 
       <div className="flex w-full items-center justify-center gap-20 mt-5">
       
