@@ -8,8 +8,8 @@ const isProtectedRoutes = createRouteMatcher(["/dashboard(.*)"]);
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
 
-  console.log("SESSIONCLAIMS-------------->", sessionClaims);
-  console.log("ROLE FROM PROXY-------------->", sessionClaims?.metadata?.role);
+  // console.log("SESSIONCLAIMS-------------->", sessionClaims);
+  // console.log("ROLE FROM PROXY-------------->", sessionClaims?.metadata?.role);
 
   // 1. If trying to access admin login page, allow it
   if (isAdminLoginRoute(req)) {

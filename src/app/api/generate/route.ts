@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { google } from "@ai-sdk/google";
-import { openai } from "@ai-sdk/openai";
+// import { openai } from "@ai-sdk/openai";
 import { scrapeTool } from "firecrawl-aisdk";
-import fs from "fs";
-import path from "path";
+// import fs from "fs";
+// import path from "path";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import {
   type InferUITools,
@@ -26,6 +26,7 @@ const tools = {
     needsApproval: true,
     // @ts-ignore
     execute: async ({ query, mode }: { query: string; mode: string }) => {
+      console.log("query and Mode by AI: ====> ", query, mode);
       const apiKey = process.env.FIRECRAWL_API_KEY;
       if (!apiKey) throw new Error("FIRECRAWL_API_KEY is not set");
       const baseUrl = "https://api.firecrawl.dev/v0";
@@ -87,9 +88,24 @@ export async function POST(req: NextRequest) {
     // gemini-3-pro-preview
     const result = streamText({
       model: google("gemini-3-flash-preview"),
-      system: `You are an expert web developer and UI/UX designer specializing in modern, responsive UI design using Tailwind CSS and Flowbite components. You always design very high quality and professional looking sites/components just like a real modern saas app.
-      You are given with searchWeb powerful tool to search web and get design inspiration for user requirements.
-      Its important to use searchWeb tool , to search or crawl for more info about design and user requirements. eg. if user want to design a saas app for e-commerce, then use searchWeb tool to search web and get design inspiration for e-commerce saas app.
+      system: `You are an expert Web Developer and Senior UI/UX Designer specializing in modern, scalable, and production-ready interfaces using Tailwind CSS, Flowbite, and modern SaaS design principles.
+Your goal is to create high-quality, visually polished, and professional UI experiences comparable to top modern SaaS platforms.
+
+## You have access to a powerful searchWeb tool for gathering:
+-Design inspiration
+-Layout patterns
+-UX best practices
+-Content ideas aligned with user requirements
+
+When to USE searchWeb:
+-Always use searchWeb tool for new design requests.
+-When creating a new design from user requirements.
+-When you need inspiration, modern patterns, or real-world references.
+
+When NOT to USE searchWeb:
+-When the user asks to modify or redesign an existing UI.
+-When only code refactoring or small UI fixes are requested.
+
 ## Response Modes
 
 **CODE MODE** - Generate HTML for:
@@ -113,7 +129,6 @@ export async function POST(req: NextRequest) {
 
 ### Design Requirements
 - **Theme**: Design with a modern, clean, and professional aesthetic.
-  - **Default Color Palette**: Use this palette unless the user specifies otherwise:
     - Primary: blue-600 (e.g., for buttons, links)
     - Secondary: gray-500 (e.g., for subtext, borders)
     - Accent: indigo-500 (e.g., for highlights, special icons)
@@ -143,13 +158,13 @@ Use as appropriate:
 - Interactive elements (modals, dropdowns, accordions)
 - No broken links (use # for demo)
 - Keyboard-accessible interactive elements
+- Mainly use Tool searchWeb to get inspiration for new user requests.
+- Use Chart.js for charts
+- Use Swiper.js for carousels
+
 
 ---
 ## Examples
-
-**User**: "Hi"  
-**Response**: "Hello! I can help you create beautiful, responsive web components. What would you like to build?"
-
 **User**: "Build a responsive landing page"  
 **Response**: [Generate complete HTML in code block]`,
       messages: await convertToModelMessages(messages),

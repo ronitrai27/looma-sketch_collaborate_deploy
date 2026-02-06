@@ -23,7 +23,7 @@ const ProjectCanvas = () => {
       <div className="h-full w-full flex flex-col items-center justify-center">
         <Spinner className="size-10" />
         <p className="text-sm text-muted-foreground mt-2">
-          Loading Amazing Experience With Leemo...
+          Loading Amazing Experience With Looma...
         </p>
       </div>
     );
@@ -53,7 +53,7 @@ const ProjectCanvas = () => {
             <div className="h-full w-full flex flex-col items-center justify-center">
               <Spinner className="size-10" />
               <p className="text-sm text-muted-foreground mt-2">
-                Loading Amazing Experience With Leemo...
+                Loading Amazing Experience With Looma...
               </p>
             </div>
           }
