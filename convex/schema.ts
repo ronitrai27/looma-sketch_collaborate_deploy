@@ -115,4 +115,42 @@ changeRequests: defineTable({
   .index("by_status", ["projectId", "status"])
   .index("by_requester", ["requestedBy"]),
 
+// REAL-TIME CHAT TABLES
+
+// Messages table - stores all chat messages for each project
+messages: defineTable({
+  projectId: v.id("projects"),
+  userId: v.id("users"),
+  text: v.string(),
+  timestamp: v.number(),
+  isEdited: v.optional(v.boolean()),
+  editedAt: v.optional(v.number()),
+})
+  .index("by_project", ["projectId"])
+  .index("by_project_timestamp", ["projectId", "timestamp"])
+  .index("by_user", ["userId"]),
+
+// Reactions table - stores emoji reactions to messages
+reactions: defineTable({
+  messageId: v.id("messages"),
+  userId: v.id("users"),
+  emoji: v.string(),
+  timestamp: v.number(),
+})
+  .index("by_message", ["messageId"])
+  .index("by_user_and_message", ["userId", "messageId"]),
+
+// Presence table - tracks online status and typing indicators
+presence: defineTable({
+  userId: v.id("users"),
+  projectId: v.id("projects"),
+  isOnline: v.boolean(),
+  isTyping: v.boolean(),
+  lastActive: v.number(),
+})
+  .index("by_project", ["projectId"])
+  .index("by_user_and_project", ["userId", "projectId"])
+  .index("by_last_active", ["lastActive"]),
+
+
 });
