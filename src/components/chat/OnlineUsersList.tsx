@@ -25,7 +25,13 @@ export function OnlineUsersList({ projectId }: OnlineUsersListProps) {
 
   if (isCollapsed) {
     return (
-      <div className="w-12 border-l flex flex-col items-center py-4">
+      <motion.div
+        initial={shouldReduceMotion ? undefined : { width: 320, opacity: 1 }}
+        animate={shouldReduceMotion ? undefined : { width: 48, opacity: 1 }}
+        exit={shouldReduceMotion ? undefined : { width: 320, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="w-12 border-l flex flex-col items-center py-4"
+      >
         <Button
           variant="ghost"
           size="icon"
@@ -34,7 +40,7 @@ export function OnlineUsersList({ projectId }: OnlineUsersListProps) {
         >
           <ChevronRight className="size-4 rotate-180" />
         </Button>
-      </div>
+      </motion.div>
     );
   }
 

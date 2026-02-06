@@ -22,6 +22,7 @@ import {
   messageHoverVariants,
   reactionVariants,
 } from "@/lib/animations";
+import { getEmojiById } from "@/lib/emoji-config";
 
 interface MessageItemProps {
   message: {
@@ -59,9 +60,7 @@ export function MessageItem({ message }: MessageItemProps) {
   };
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this message?")) {
-      await deleteMessage({ messageId: message._id });
-    }
+    await deleteMessage({ messageId: message._id });
   };
 
   const variants = shouldReduceMotion ? messageVariantsReduced : messageVariants;
@@ -103,21 +102,26 @@ export function MessageItem({ message }: MessageItemProps) {
         {/* Reactions */}
         {Object.keys(message.reactionCounts).length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
-            {Object.entries(message.reactionCounts).map(([emoji, count]) => (
-              <motion.button
-                key={emoji}
-                variants={shouldReduceMotion ? undefined : reactionVariants}
-                initial="initial"
-                animate="animate"
-                whileHover={shouldReduceMotion ? undefined : "hover"}
-                whileTap={shouldReduceMotion ? undefined : "tap"}
-                onClick={() => handleEmojiSelect(emoji)}
-                className="h-6 px-2 text-xs border rounded-md hover:bg-muted transition-colors"
-              >
-                <span className="mr-1">{emoji}</span>
-                <span>{count}</span>
-              </motion.button>
-            ))}
+            {Object.entries(message.reactionCounts).map(([emojiId, count]) => {
+              const emojiConfig = getEmojiById(emojiId);
+              const displayEmoji = emojiConfig?.unicode || emojiId;
+              
+              return (
+                <motion.button
+                  key={emojiId}
+                  variants={shouldReduceMotion ? undefined : reactionVariants}
+                  initial="initial"
+                  animate="animate"
+                  whileHover={shouldReduceMotion ? undefined : "hover"}
+                  whileTap={shouldReduceMotion ? undefined : "tap"}
+                  onClick={() => handleEmojiSelect(emojiId)}
+                  className="h-6 px-2 text-xs border rounded-md hover:bg-muted transition-colors"
+                >
+                  <span className="mr-1">{displayEmoji}</span>
+                  <span>{count}</span>
+                </motion.button>
+              );
+            })}
           </div>
         )}
       </div>
