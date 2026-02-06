@@ -75,4 +75,44 @@ export default defineSchema({
     .index("by_project", ["projectId"])
     .index("by_updated_by", ["updatedBy"])
     .index("by_created_by", ["createdBy"]),
+
+
+// approve / reject / versioning table
+
+componentVersions: defineTable({
+  projectId: v.id("projects"),
+  componentName: v.string(),
+  componentCode: v.string(),
+  createdBy: v.id("users"),
+  createdAt: v.number(),
+  version: v.number(),
+  isApproved: v.boolean(),
+  approvedBy: v.optional(v.id("users")),
+  approvedAt: v.optional(v.number()),
+  description: v.optional(v.string()),
+})
+  .index("by_component", ["projectId", "componentName"])
+  .index("by_creator", ["createdBy"]),
+
+changeRequests: defineTable({
+  projectId: v.id("projects"),
+  componentName: v.string(),
+  currentVersionId: v.optional(v.id("componentVersions")),
+  proposedVersionId: v.id("componentVersions"),
+  requestedBy: v.id("users"),
+  requestedAt: v.number(),
+  status: v.union(
+    v.literal("pending"),
+    v.literal("approved"),
+    v.literal("rejected")
+  ),
+  reviewedBy: v.optional(v.id("users")),
+  reviewedAt: v.optional(v.number()),
+  reviewComments: v.optional(v.string()),
+  linesAdded: v.number(),
+  linesRemoved: v.number(),
+})
+  .index("by_status", ["projectId", "status"])
+  .index("by_requester", ["requestedBy"]),
+
 });

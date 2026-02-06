@@ -16,6 +16,7 @@ import {
   LucideInfo,
   LucideLock,
   Trash2,
+  GitPullRequest,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -114,6 +115,16 @@ const ProjectPage = () => {
           </Button>
         </Link>
 
+        <Link href={`/dashboard/projects/${params.id}/requests`}>
+          <Button
+            className="text-sm px-8!  cursor-pointer"
+            size="sm"
+            variant="outline"
+          >
+            Check requests <GitPullRequest className="w-4 h-4 ml-1" />
+          </Button>
+        </Link>
+         
         <Link href={`/dashboard/projects/${params.id}/codespace`}>
           <Button
             className="text-sm px-5!  cursor-pointer"
@@ -124,6 +135,8 @@ const ProjectPage = () => {
           </Button>
         </Link>
       </div>
+
+        
 
       {/* PARENT CONATINER */}
       <div className="flex px-4 w-full mt-10 gap-6">
