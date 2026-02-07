@@ -451,13 +451,17 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
                                   return (
                                     <div
                                       key={part.toolCallId}
-                                    className="p-2 bg-white dark:bg-gray-800 rounded-lg border"
+                                      className="p-2 bg-white dark:bg-gray-800 rounded-lg border"
                                     >
-                                      <p className="text-sm font-medium font-pop mb-2">Requested for Web Tool calling for design recreation.</p>
-                                      <div   className="flex items-center gap-5">
+                                      <p className="text-sm font-medium font-pop mb-2">
+                                        Requested for Web Tool calling for
+                                        design recreation.
+                                      </p>
+                                      <div className="flex items-center gap-5">
                                         <Button
                                           size={"sm"}
-                                          variant={"outline"}
+                                          // variant={"default"}
+                                          className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
                                           onClick={() =>
                                             addToolApprovalResponse({
                                               id: part.approval.id,
