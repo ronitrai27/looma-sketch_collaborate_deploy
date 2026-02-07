@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import {
+  Braces,
   ExternalLink,
   LucideCode2,
   LucideDownload,
@@ -22,9 +23,13 @@ import { motion } from "framer-motion";
 import StyleGuidePreview from "./styleGuidePreview";
 import CodeExporting from "./CodeExporting";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { LabelList } from "recharts";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { toast } from "sonner";
+import { Id } from "../../../convex/_generated/dataModel";
+
 
 interface WebDesignPreviewProps {
   onToggleTools: () => void;
@@ -32,6 +37,8 @@ interface WebDesignPreviewProps {
   designCode: string;
   selectedElement: HTMLElement | null;
   setSelectedElement: (element: HTMLElement | null) => void;
+  messages: any[];
+  projectId: string;
 }
 
 const getShell = (code: string, isDesign: boolean = false) => `
@@ -73,6 +80,8 @@ const WebDesignPreview = ({
   designCode,
   selectedElement,
   setSelectedElement,
+  messages,
+  projectId,
 }: WebDesignPreviewProps) => {
   const [displayCode, setDisplayCode] = useState("");
   const [selectedScreen, setSelectedScreen] = useState<
@@ -81,6 +90,51 @@ const WebDesignPreview = ({
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<"preview" | "design">("preview");
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // SAVING LOGIC STATE-----------------------
+  const [codespaceName, setCodespaceName] = useState("");
+  const [codespaceDescription, setCodespaceDescription] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const currentUser = useQuery(api.users.getCurrentUser);
+  const saveCodespace = useMutation(api.codespaces.createCodespace);
+
+  const handleSaveCodespace = async () => {
+    if (!currentUser) {
+      toast.error("You must be logged in to save codespaces.");
+      return;
+    }
+
+    if (!codespaceName.trim()) {
+      toast.error("Please provide a name for your codespace.");
+      return;
+    }
+
+    setIsSaving(true);
+    const toastId = toast.loading("Saving your codespace...");
+
+    try {
+      await saveCodespace({
+        projectId: projectId as Id<"projects">,
+        createdBy: currentUser._id,
+        codespaceName,
+        codespaceDescription,
+        code: displayCode,
+        messageHistory: messages,
+      });
+
+      toast.success("Codespace saved successfully!", { id: toastId });
+      setCodespaceName("");
+      setCodespaceDescription("");
+    } catch (error) {
+      console.error("Error saving codespace:", error);
+      toast.error("Failed to save codespace. Please try again.", {
+        id: toastId,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // RENDERING CODE ON IFRAME-----------------------
   useEffect(() => {
@@ -239,11 +293,28 @@ const WebDesignPreview = ({
             <h1 className="text-sm font-medium">Save the code to your project <LucideCode2 className="inline h-4 w-4 ml-1 -mt-0.5"/></h1>
             <div className="flex-col flex space-y-1.5 mt-4 p-2 bg-primary-foreground border rounded">
               <Label className="text-xs">Codespace Name</Label>
-              <Input placeholder="eg: login v1" className="focus:outline-none border-border" />
+              <Input 
+                placeholder="eg: login v1" 
+                className="focus:outline-none border-border" 
+                value={codespaceName}
+                onChange={(e) => setCodespaceName(e.target.value)}
+              />
 
                <Label className="text-xs">Codespace Description</Label>
-              <Input placeholder="eg: Login page for v1" className="focus:outline-none border-border" />
+              <Input 
+                placeholder="eg: Login page for v1" 
+                className="focus:outline-none border-border" 
+                value={codespaceDescription}
+                onChange={(e) => setCodespaceDescription(e.target.value)}
+              />
             </div>
+            <Button 
+              className="cursor-pointer text-xs mt-2 w-full" 
+              onClick={handleSaveCodespace}
+              disabled={isSaving}
+            >
+              {isSaving ? "Saving..." : "Save Codespace"} <Braces/>
+            </Button>
           </div>
           </PopoverContent>
           </Popover>

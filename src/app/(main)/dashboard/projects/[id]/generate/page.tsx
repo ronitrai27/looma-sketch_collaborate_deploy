@@ -5,6 +5,8 @@ import "allotment/dist/style.css";
 import ChatSection from "@/modules/generate/ChatSection";
 import WebDesignPreview from "@/modules/generate/WebDesignPreview";
 import ElementSetting from "@/modules/generate/ElementSetting";
+import { useParams } from "next/navigation";
+import { Id } from "../../../../../../../convex/_generated/dataModel";
 
 const MIN_AI_WIDTH = 250;
 const MAX_AI_WIDTH = 400;
@@ -14,9 +16,11 @@ const MIN_DESIGN_PREVIEW_WIDTH = 200;
 const MAX_DESIGN_PREVIEW_WIDTH = 400;
 
 const GeneratePage = () => {
+  const params = useParams<{ id: Id<"projects"> }>();
   const [showTools, setShowTools] = useState(false);
   const [currentCode, setCurrentCode] = useState("");
   const [isReady, setIsReady] = useState(true);
+  const [messages, setMessages] = useState<any[]>([]);
 
   const GetCodeDetails = async () => {};
 
@@ -47,6 +51,7 @@ const GeneratePage = () => {
             <ChatSection
               onCodeChange={UpdateCode}
               onStatusChange={UpdateStatus}
+              onMessagesChange={setMessages}
             />
           </div>
         </Allotment.Pane>
@@ -59,6 +64,8 @@ const GeneratePage = () => {
               designCode={currentCode}
               selectedElement={selectedElement}
               setSelectedElement={setSelectedElement}
+              messages={messages}
+              projectId={params.id as any}
             />
           </div>
         </Allotment.Pane>

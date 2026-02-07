@@ -48,6 +48,7 @@ import { type ToolApprovalResponse } from "ai";
 type Props = {
   onCodeChange?: (code: string) => void;
   onStatusChange?: (status: string) => void;
+  onMessagesChange?: (messages: any[]) => void;
 };
 
 const Suggestions = [
@@ -57,7 +58,11 @@ const Suggestions = [
   "make a admin dashboard",
 ];
 
-const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
+const ChatSection = ({
+  onCodeChange,
+  onStatusChange,
+  onMessagesChange,
+}: Props) => {
   const [input, setInput] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
 
@@ -82,6 +87,17 @@ const ChatSection = ({ onCodeChange, onStatusChange }: Props) => {
     }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
   });
+
+  // NOTIFY PARENT ABOUT MESSAGES---------------------------
+  useEffect(() => {
+    if (onMessagesChange) {
+      const allMessages = [
+        ...messages.map((m) => ({ role: m.role, content: m.parts })),
+        ...urlCodeMessages.map((m) => ({ role: m.role, content: m.content })),
+      ];
+      onMessagesChange(allMessages);
+    }
+  }, [messages, urlCodeMessages, onMessagesChange]);
 
   const handleApproveTool = (id: string) => {
     addToolApprovalResponse({ id, approved: true });
