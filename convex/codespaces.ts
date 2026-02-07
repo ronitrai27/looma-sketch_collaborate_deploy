@@ -1,6 +1,9 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// ============================================
+// CREATING CODESPACE
+// ============================================
 export const createCodespace = mutation({
   args: {
     projectId: v.id("projects"),
@@ -20,7 +23,7 @@ export const createCodespace = mutation({
     // CHECK2: user is authorized
     const user = await ctx.db.get(args.createdBy);
     if (!user || user.tokenIdentifier !== identity.tokenIdentifier) {
-        throw new Error("Unauthorized");
+      throw new Error("Unauthorized");
     }
 
     const codespaceId = await ctx.db.insert("codespaces", {
@@ -37,3 +40,21 @@ export const createCodespace = mutation({
     return codespaceId;
   },
 });
+
+// ============================================
+// GETTING ALL CODESPACE FOR A PROJECTID
+// ============================================
+// ALREADY CREATED IN PROJECT.TS
+// export const getCodespacesByProjectId = query({
+//   args: {
+//     projectId: v.id("projects"),
+//   },
+//   handler: async (ctx, args) => {
+//     const codespaces = await ctx.db
+//       .query("codespaces")
+//       .filter((q) => q.eq(q.field("projectId"), args.projectId))
+//       .collect();
+//     return codespaces;
+//   },
+// });
+
