@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     // gemini-3-pro-preview
     const result = streamText({
-      model: google("gemini-3-flash-preview"),
+      model: google("gemini-2.5-flash"),
       system: `You are an expert Web Developer and Senior UI/UX Designer specializing in modern, scalable, and production-ready interfaces using Tailwind CSS, Flowbite, and modern SaaS design principles.
 Your goal is to create high-quality, visually polished, and professional UI experiences comparable to top modern SaaS platforms.
 

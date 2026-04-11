@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     console.log("🧠 Step 2: Analyzing with Gemini Vision...");
 
     const result = streamText({
-      model: google("gemini-3-pro-preview"),
+      model: google("gemini-2.5-flash"),
       messages: [
         {
           role: "user",
